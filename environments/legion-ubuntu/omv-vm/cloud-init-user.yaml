@@ -1,0 +1,71 @@
+#cloud-config
+# OMV-specific configuration with Ansible bootstrap
+
+packages:
+  - ansible
+  - git
+  - python3-pip
+
+write_files:
+  - path: /root/ansible/playbook.yml
+    permissions: '0644'
+    content: |
+      ---
+      - name: Install and Configure OpenMediaVault
+        hosts: localhost
+        become: true
+
+        tasks:
+          - name: Add OMV repository key
+            apt_key:
+              url: https://packages.openmediavault.org/public/archive.key
+              state: present
+
+          - name: Add OMV repository
+            apt_repository:
+              repo: "deb https://packages.openmediavault.org/public sandworm main"
+              state: present
+              filename: openmediavault
+
+          - name: Update apt cache
+            apt:
+              update_cache: yes
+
+          - name: Install OMV packages
+            apt:
+              name:
+                - openmediavault-keyring
+                - openmediavault
+              state: present
+
+          - name: Populate OMV configuration database
+            command: omv-confdbadm populate
+            args:
+              creates: /etc/openmediavault/config.xml
+
+          - name: Initialize OMV
+            command: omv-salt deploy run
+
+          - name: Enable OMV services
+            systemd:
+              name: openmediavault-engined
+              enabled: yes
+              state: started
+
+  - path: /root/ansible/inventory.yml
+    permissions: '0644'
+    content: |
+      all:
+        hosts:
+          localhost:
+            ansible_connection: local
+
+  - path: /etc/cron.d/ansible-pull
+    permissions: '0644'
+    content: |
+      # Run Ansible playbook hourly for drift prevention
+      0 * * * * root cd /root/ansible && ansible-playbook -i inventory.yml playbook.yml >> /var/log/ansible-pull.log 2>&1
+
+runcmd:
+  - cd /root/ansible && ansible-playbook -i inventory.yml playbook.yml
+  - echo "OMV installation initiated"
