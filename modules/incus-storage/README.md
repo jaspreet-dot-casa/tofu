@@ -30,6 +30,7 @@ module "storage" {
 | pool_name | Storage pool name | `string` | n/a | yes |
 | pool_driver | Storage driver | `string` | `"lvm"` | no |
 | pool_config | Storage pool configuration | `map(string)` | `{}` | no |
+| prevent_destroy | Prevent accidental destruction of the storage pool (recommended for production) | `bool` | `true` | no |
 
 ## Outputs
 

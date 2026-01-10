@@ -5,6 +5,6 @@ resource "incus_storage_pool" "pool" {
   config = var.pool_config
 
   lifecycle {
-    prevent_destroy = true
+    prevent_destroy = var.prevent_destroy
   }
 }

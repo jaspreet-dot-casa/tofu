@@ -14,3 +14,9 @@ variable "pool_config" {
   type        = map(string)
   default     = {}
 }
+
+variable "prevent_destroy" {
+  description = "Prevent accidental destruction of the storage pool (recommended for production)"
+  type        = bool
+  default     = true
+}

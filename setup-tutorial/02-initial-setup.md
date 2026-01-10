@@ -24,7 +24,7 @@ tofu version
 
 Expected output:
 ```
-OpenTofu v1.11.0
+OpenTofu v1.11.2
 on linux_amd64
 ```
 
@@ -62,7 +62,7 @@ Terragrunt is a thin wrapper for Terraform/OpenTofu that provides extra tools fo
 
 ```bash
 # Set Terragrunt version
-TERRAGRUNT_VERSION="v0.97.0"
+TERRAGRUNT_VERSION="v0.96.1"
 
 # Download Terragrunt binary
 wget "https://github.com/gruntwork-io/terragrunt/releases/download/${TERRAGRUNT_VERSION}/terragrunt_linux_amd64"
@@ -77,7 +77,7 @@ terragrunt --version
 
 Expected output:
 ```
-terragrunt version v0.97.0
+terragrunt version v0.96.1
 ```
 
 **Note**: Terragrunt 1.0 is expected to be released in Q1 2026. Version 0.97.0 is fully compatible and will have a smooth upgrade path to 1.0.
@@ -98,8 +98,8 @@ incus version
 
 Expected output:
 ```
-Client version: 6.19 (or 6.0 LTS)
-Server version: 6.19 (or 6.0 LTS)
+Client version: 6.20 (or 6.0 LTS)
+Server version: 6.20 (or 6.0 LTS)
 ```
 
 **Major Update**: Incus has reached v6.x with significant improvements:
@@ -204,9 +204,9 @@ chmod +x scripts/validate-prereqs.sh
 Expected output:
 ```
 Validating prerequisites...
-✓ OpenTofu: OpenTofu v1.11.0
-✓ Terragrunt: terragrunt version v0.97.0
-✓ Incus: Client version: 6.x
+✓ OpenTofu: OpenTofu v1.11.2
+✓ Terragrunt: terragrunt version v0.96.1
+✓ Incus: Client version: 6.20 (or 6.0 LTS)
 ✓ Incus daemon running
 ✓ Incus storage configured
 ✓ Incus network configured
