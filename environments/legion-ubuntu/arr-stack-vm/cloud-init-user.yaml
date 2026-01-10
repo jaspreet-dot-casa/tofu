@@ -4,9 +4,6 @@
 packages:
   - nfs-common
 
-mounts:
-  - [ "10.100.0.10:/export/media", "/mnt/media", "nfs", "defaults,timeo=14,intr", "0", "0" ]
-
 write_files:
   - path: /tmp/install-docker.sh
     permissions: '0755'
@@ -111,10 +108,37 @@ write_files:
           name: arr-stack
 
 runcmd:
+  # Wait for network and NFS server (OMV VM)
+  # TODO: Replace hardcoded IP with a variable or hostname
+  - |
+    for i in {1..30}; do
+      if ping -c 1 10.100.0.10 &> /dev/null; then
+        echo "NFS server is reachable"
+        break
+      fi
+      echo "Waiting for NFS server... (attempt $i/30)"
+      sleep 2
+    done
+  # Mount NFS share with retry logic
+  - mkdir -p /mnt/media
+  - |
+    for i in {1..5}; do
+      if mount -t nfs 10.100.0.10:/export/media /mnt/media; then
+        echo "NFS mount succeeded"
+        break
+      fi
+      echo "NFS mount failed, retrying... (attempt $i/5)" >> /var/log/cloud-init-output.log
+      sleep 5
+    done
+  # Add to fstab for persistence
+  - echo "10.100.0.10:/export/media /mnt/media nfs defaults,timeo=14,intr 0 0" >> /etc/fstab
+  # Install Docker
   - /tmp/install-docker.sh
+  # Setup ARR stack directories
   - mkdir -p /home/debian/arr-config/{sonarr,radarr,prowlarr,qbittorrent}
   - mkdir -p /mnt/media/{tv,movies,downloads}
   - chown -R debian:debian /home/debian/arr-config /mnt
   - sleep 30  # Wait for Docker to initialize
+  # Start ARR stack
   - cd /home/debian && docker compose up -d
   - echo "ARR Stack deployment complete"

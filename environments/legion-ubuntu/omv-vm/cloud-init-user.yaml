@@ -16,16 +16,29 @@ write_files:
         become: true
 
         tasks:
-          - name: Add OMV repository key
-            apt_key:
+          - name: Ensure apt keyrings directory exists
+            ansible.builtin.file:
+              path: /etc/apt/keyrings
+              state: directory
+              mode: '0755'
+
+          - name: Download OMV repository key
+            ansible.builtin.get_url:
               url: https://packages.openmediavault.org/public/archive.key
-              state: present
+              dest: /etc/apt/keyrings/openmediavault-archive-keyring.asc
+              mode: '0644'
 
           - name: Add OMV repository
-            apt_repository:
-              repo: "deb https://packages.openmediavault.org/public sandworm main"
+            ansible.builtin.deb822_repository:
+              name: openmediavault
+              uris:
+                - https://packages.openmediavault.org/public
+              suites:
+                - sandworm
+              components:
+                - main
+              signed_by: /etc/apt/keyrings/openmediavault-archive-keyring.asc
               state: present
-              filename: openmediavault
 
           - name: Update apt cache
             apt:

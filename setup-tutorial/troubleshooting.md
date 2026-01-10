@@ -27,7 +27,9 @@ Check your dependencies in `terragrunt.hcl`. Ensure `arr-stack-vm` depends on `n
 3.  **Check Permissions**:
     If you get "Permission Denied" when writing files:
     *   Ensure OMV export has `no_root_squash`.
-    *   Check directory permissions on OMV: `chmod 777 /export/media` (for testing).
+    *   Check directory permissions on OMV: use `chmod 755 /export/media` and ensure group ownership allows NFS access.
+    *   For testing only, use `chmod 775` with proper group assignment instead of `chmod 777`.
+    *   Always restore restrictive permissions (`chmod 755`) before moving to production.
 
 ## VM Creation Issues
 

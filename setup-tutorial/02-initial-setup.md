@@ -9,8 +9,14 @@ OpenTofu is an open-source Infrastructure as Code tool, compatible with Terrafor
 ### Installation via Official Script
 
 ```bash
-# Download and install OpenTofu using the official script
-curl --proto '=https' --tlsv1.2 -fsSL https://get.opentofu.org/install-opentofu.sh | sh
+# Download the OpenTofu installation script
+curl --proto '=https' --tlsv1.2 -fsSL https://get.opentofu.org/install-opentofu.sh -o install-opentofu.sh
+
+# Inspect the script before running (recommended for security)
+less install-opentofu.sh
+
+# Run the installation script
+sh install-opentofu.sh
 
 # Verify installation
 tofu version
@@ -268,19 +274,19 @@ used_by: []
 Test that Incus can create a VM:
 
 ```bash
-# Launch a test VM
-incus launch images:debian/12 test-vm
+# Launch a test VM (using cloud image with --vm flag)
+incus launch images:debian/12/cloud test-vm --vm
 
 # Wait a few seconds, then check status
 incus list
 ```
 
 Expected output:
-```
+```text
 +----------+---------+-----------------------+------+-----------------+-----------+
 |   NAME   |  STATE  |         IPV4          | IPV6 |      TYPE       | SNAPSHOTS |
 +----------+---------+-----------------------+------+-----------------+-----------+
-| test-vm  | RUNNING | 10.100.0.x (eth0)     |      | CONTAINER       | 0         |
+| test-vm  | RUNNING | 10.100.0.x (eth0)     |      | VIRTUAL-MACHINE | 0         |
 +----------+---------+-----------------------+------+-----------------+-----------+
 ```
 

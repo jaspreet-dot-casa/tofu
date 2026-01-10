@@ -4,7 +4,7 @@ locals {
 
   # Network configuration
   network_name    = "incusbr0"
-  network_cidr    = "10.100.0.1/24"
+  network_cidr    = "10.100.0.0/24"
   network_gateway = "10.100.0.1"
 
   # Common VM settings

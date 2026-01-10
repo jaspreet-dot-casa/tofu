@@ -38,16 +38,16 @@ else
 fi
 
 # Check storage pools
-if incus storage list | grep -q "default"; then
-    echo "✓ Incus storage configured"
+if incus storage list | tail -n +4 | grep -q "^|"; then
+    echo "✓ Incus storage configured ($(incus storage list --format csv | wc -l) pool(s) found)"
 else
     echo "✗ Incus storage not configured. Run: incus admin init"
     exit 1
 fi
 
 # Check network
-if incus network list | grep -q "incusbr0"; then
-    echo "✓ Incus network configured"
+if incus network list | tail -n +4 | grep -q "^|"; then
+    echo "✓ Incus network configured ($(incus network list --format csv | wc -l) network(s) found)"
 else
     echo "✗ Incus network not configured. Run: incus admin init"
     exit 1

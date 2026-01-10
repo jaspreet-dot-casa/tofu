@@ -44,7 +44,7 @@ For LVM storage backend (recommended in this tutorial):
 
 ### Required Tools (to be installed)
 - **OpenTofu** (v1.11+) - Open-source Terraform alternative
-- **Terragrunt** (v0.97+) - Terraform/OpenTofu wrapper
+- **Terragrunt** (v0.96+) - Terraform/OpenTofu wrapper
 - **Incus** (v6.0+ LTS) - LXC/VM manager
 - **Cloud-init** (v25.3+) - VM initialization and configuration
 

@@ -5,7 +5,7 @@ include "root" {
 
 # Load environment variables
 locals {
-  env_vars = read_terragrunt_config(find_in_parent_folders("env.hcl"))
+  env_vars = read_terragrunt_config("${get_terragrunt_dir()}/env.hcl")
 }
 
 # Common inputs for all units in this environment
