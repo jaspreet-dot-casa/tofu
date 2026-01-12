@@ -14,7 +14,7 @@ echo "Public Key: $PUBLIC_KEY"
 echo "Endpoint: $ENDPOINT"
 ```
 
-Go to https://my.nordaccount.com/dashboard/nordvpn/access-tokens/ to get your WireGuard accesss token.
+Go to https://my.nordaccount.com/dashboard/nordvpn/access-tokens/ to get your WireGuard access token.
 
 Then get your WireGuard private key from the access token.
 ```bash
