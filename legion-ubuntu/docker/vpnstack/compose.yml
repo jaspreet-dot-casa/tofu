@@ -1,0 +1,120 @@
+services:
+  qbittorrent:
+    image: lscr.io/linuxserver/qbittorrent:latest
+    container_name: qbittorrent
+    env_file:
+      - ./.env
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Australia/Melbourne
+      - WEBUI_PORT=13001  # default is 8080, changed to avoid conflict
+      - TORRENTING_PORT=6881
+    network_mode: "service:gluetun"
+    volumes:
+      - qbittorrent:/config
+      - ${MEDIA_PATH}/qbittorrent/downloads:/downloads # This is where your torrents will be saved
+    restart: unless-stopped
+    depends_on:
+      -  gluetun
+
+  gluetun:
+    container_name: gluetun
+    image: qmcgaw/gluetun
+    cap_add:
+      - NET_ADMIN
+    devices:
+      - /dev/net/tun:/dev/net/tun
+    ports:
+      - 13001:13001  # qbitorrent
+      - 9696:9696  # prowlarr
+      - 6881:6881/tcp
+      - 6881:6881/udp
+    env_file:
+      - ./.env
+    environment:
+      - VPN_SERVICE_PROVIDER=nordvpn
+      - VPN_TYPE=wireguard # or openvpn
+      - SERVER_COUNTRIES=Australia
+
+  # Didn't work for me but keeping it here for reference
+  # Add this to ports in gluetun: `- 9117:9117  # jackett`
+  # And add a volume for jackett_data at the bottom of the file.
+  # jackett:
+  #   image: lscr.io/linuxserver/jackett:latest
+  #   container_name: jackett
+  #   network_mode: "service:gluetun"
+  #   environment:
+  #     - PUID=1000
+  #     - PGID=1000
+  #     - TZ=Etc/UTC
+  #     - AUTO_UPDATE=true #optional
+  #     - RUN_OPTS= #optional
+  #   volumes:
+  #     - jackett_data:/config
+  #     - ${MEDIA_PATH}/qbittorrent/downloads/blackhole:/downloads
+  #   depends_on:
+  #     - gluetun
+
+  prowlarr:
+    image: lscr.io/linuxserver/prowlarr:latest
+    container_name: prowlarr
+    environment:
+      - PUID=1000 # Your User ID
+      - PGID=1000 # Your Group ID
+      - TZ=Australia/Melbourne # Your Timezone (e.g., America/Denver, Australia/Brisbane)
+    volumes:
+      - prowlarr_data:/config # Host path for configuration data:container path
+    network_mode: "service:gluetun"
+    depends_on:
+      - gluetun
+    restart: unless-stopped
+
+# Mediamanager stack
+  mediamanager:
+    container_name: mediamanager_server
+    image: ghcr.io/maxdorninger/mediamanager/mediamanager:latest
+    ports:
+      - "13000:8000"
+    environment:
+      - CONFIG_DIR=/app/config
+    env_file:
+      - ./.env
+    volumes:
+      # Mount your actual media directories here - these paths should match your config.toml
+      # This path is for media files (movies, tv shows, images).
+      # Run command from README to create these folders before starting the container.
+      - ${MEDIA_PATH}/mediamanager:/data/
+      # Config folder for application configuration
+      - ./config/:/app/config/
+      # This maps from torrent download location in qbittorrent to torrent_directory in config.toml
+      - ${MEDIA_PATH}/qbittorrent/downloads:/downloads
+    depends_on:
+      db:
+        condition: service_healthy
+      qbittorrent:
+        condition: service_started
+      prowlarr:
+        condition: service_started
+    restart: unless-stopped
+
+  db:
+    container_name: mediamanager_postgres
+    image: postgres:17
+    restart: unless-stopped
+    volumes:
+      - mediamanager_postgres:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -d $${POSTGRES_DB} -U $${POSTGRES_USER}" ]
+      interval: 1s
+      timeout: 5s
+      retries: 5
+    environment:
+      POSTGRES_USER: MediaManager
+      POSTGRES_DB: MediaManager
+      POSTGRES_PASSWORD: MediaManager
+
+volumes:
+  qbittorrent:
+  mediamanager_postgres:
+  prowlarr_data:
