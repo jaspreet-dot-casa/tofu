@@ -1,0 +1,32 @@
+#cloud-config
+# Base Debian configuration for ARR stack VM
+
+package_update: true
+package_upgrade: true
+
+packages:
+  - curl
+  - wget
+  - vim
+  - git
+  - htop
+  - net-tools
+  - ca-certificates
+  - gnupg
+  - lsb-release
+
+timezone: UTC
+
+users:
+  - name: debian
+    groups: sudo, docker
+    sudo: ALL=(ALL) NOPASSWD:ALL
+    shell: /bin/bash
+    ssh_authorized_keys:
+      - # TODO: Add your SSH public key here
+
+ssh_pwauth: false
+disable_root: true
+
+hostname: arr-stack-vm
+fqdn: arr-stack-vm.legion.local
