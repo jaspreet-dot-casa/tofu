@@ -1,0 +1,27 @@
+---
+# For configuration options and examples, please see:
+# https://gethomepage.dev/configs/services/
+
+- VPN Stack:
+    - Media Manager:
+        href: "{{HOMEPAGE_VAR_BASE_URL}}:13000/"
+        description: Media Manager for finding media
+    - qBittorrent:
+        href: "{{HOMEPAGE_VAR_BASE_URL}}:13001"
+        description: The torrenting tool
+    - Prowlarr:
+        href: "{{HOMEPAGE_VAR_BASE_URL}}:9696"
+        description: The indexer
+    - Gluetun:
+        icon: gluetun.png
+        server: my-docker
+        description: VPN bridge
+        container: gluetun
+        widget:
+          type: gluetun
+          url: http://gluetun:8000
+
+- Docker manager:
+    - Arcane:
+        href: "{{HOMEPAGE_VAR_BASE_URL}}:3552"
+        description: Arcane helps you manage docker projects easily
