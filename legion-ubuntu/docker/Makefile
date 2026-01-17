@@ -1,3 +1,4 @@
+.PHONY: netup
 netup:
 	@docker network inspect vpn >/dev/null 2>&1  || docker network create vpn
 	@docker network inspect vpn >/dev/null 2>&1 && echo "vpn network is up" || echo "vpn network is down"

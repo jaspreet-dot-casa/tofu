@@ -12,5 +12,4 @@ services:
       - ${CONFIG_PATH}:/config
       - ${TRANSCODE_PATH}:/transcode
       - ${MEDIA_PATH}:/media:ro
-      - ${MEDIA_PATH}/mediamanager:/media/mediamanager:ro
     restart: unless-stopped

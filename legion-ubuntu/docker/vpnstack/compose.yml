@@ -112,7 +112,6 @@ services:
     volumes:
       - mediamanager_postgres:/var/lib/postgresql/data
     networks:
-      - vpn
       - mediamanager
     healthcheck:
       test: [ "CMD-SHELL", "pg_isready -d $${POSTGRES_DB} -U $${POSTGRES_USER}" ]
