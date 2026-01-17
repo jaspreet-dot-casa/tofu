@@ -36,6 +36,9 @@ services:
       - VPN_SERVICE_PROVIDER=nordvpn
       - VPN_TYPE=wireguard # or openvpn
       - SERVER_COUNTRIES=Australia
+    networks:
+      - vpn
+      - dashboard
 
   # Didn't work for me but keeping it here for reference
   # Add this to ports in gluetun: `- 9117:9117  # jackett`
@@ -78,6 +81,10 @@ services:
       - "13000:8000"
     environment:
       - CONFIG_DIR=/app/config
+    networks:
+      - vpn
+      - dashboard
+      - mediamanager
     env_file:
       - ./.env
     volumes:
@@ -104,6 +111,9 @@ services:
     restart: unless-stopped
     volumes:
       - mediamanager_postgres:/var/lib/postgresql/data
+    networks:
+      - vpn
+      - mediamanager
     healthcheck:
       test: [ "CMD-SHELL", "pg_isready -d $${POSTGRES_DB} -U $${POSTGRES_USER}" ]
       interval: 1s
@@ -118,3 +128,10 @@ volumes:
   qbittorrent:
   mediamanager_postgres:
   prowlarr_data:
+
+networks:
+  vpn:
+    external: true
+  dashboard:
+    external: true
+  mediamanager:
