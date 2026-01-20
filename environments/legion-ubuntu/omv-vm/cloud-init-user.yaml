@@ -1,0 +1,84 @@
+#cloud-config
+# OMV-specific configuration with Ansible bootstrap
+
+packages:
+  - ansible
+  - git
+  - python3-pip
+
+write_files:
+  - path: /root/ansible/playbook.yml
+    permissions: '0644'
+    content: |
+      ---
+      - name: Install and Configure OpenMediaVault
+        hosts: localhost
+        become: true
+
+        tasks:
+          - name: Ensure apt keyrings directory exists
+            ansible.builtin.file:
+              path: /etc/apt/keyrings
+              state: directory
+              mode: '0755'
+
+          - name: Download OMV repository key
+            ansible.builtin.get_url:
+              url: https://packages.openmediavault.org/public/archive.key
+              dest: /etc/apt/keyrings/openmediavault-archive-keyring.asc
+              mode: '0644'
+
+          - name: Add OMV repository
+            ansible.builtin.deb822_repository:
+              name: openmediavault
+              uris:
+                - https://packages.openmediavault.org/public
+              suites:
+                - sandworm
+              components:
+                - main
+              signed_by: /etc/apt/keyrings/openmediavault-archive-keyring.asc
+              state: present
+
+          - name: Update apt cache
+            apt:
+              update_cache: yes
+
+          - name: Install OMV packages
+            apt:
+              name:
+                - openmediavault-keyring
+                - openmediavault
+              state: present
+
+          - name: Populate OMV configuration database
+            command: omv-confdbadm populate
+            args:
+              creates: /etc/openmediavault/config.xml
+
+          - name: Initialize OMV
+            command: omv-salt deploy run
+
+          - name: Enable OMV services
+            systemd:
+              name: openmediavault-engined
+              enabled: yes
+              state: started
+
+  - path: /root/ansible/inventory.yml
+    permissions: '0644'
+    content: |
+      all:
+        hosts:
+          localhost:
+            ansible_connection: local
+
+  - path: /etc/cron.d/ansible-pull
+    permissions: '0644'
+    content: |
+      # Run Ansible playbook hourly for drift prevention
+      0 * * * * root cd /root/ansible && ansible-playbook -i inventory.yml playbook.yml >> /var/log/ansible-pull.log 2>&1
+
+runcmd:
+  - cd /root/ansible && ansible-playbook -i inventory.yml playbook.yml
+  - echo "OMV installation initiated"
