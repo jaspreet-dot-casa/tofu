@@ -11,10 +11,24 @@ services:
     env_file:
       - .env
     environment:
-      - APP_URL=http://localhost:3552
+      - APP_URL=https://arcane.${DOMAIN}
       - PUID=1000
       - PGID=1000
+    networks:
+      - proxy
     restart: unless-stopped
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.arcane.rule=Host(`arcane.${DOMAIN}`)"
+      - "traefik.http.routers.arcane.entrypoints=websecure"
+      - "traefik.http.routers.arcane.tls=true"
+      - "traefik.http.routers.arcane.tls.certresolver=letsencrypt"
+      - "traefik.http.services.arcane.loadbalancer.server.port=3552"
+      - "traefik.http.routers.arcane.middlewares=security-headers@file"
+
+networks:
+  proxy:
+    external: true
 
 volumes:
   arcane-data:

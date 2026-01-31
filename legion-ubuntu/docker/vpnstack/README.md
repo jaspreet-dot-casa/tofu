@@ -71,8 +71,11 @@ docker compose up -d
 
 Go to `http://localhost:13000` to access the MediaManager web UI.
 
-## WIP
+## Traefik Access
 
-Configure the tailscale service to allow MediaManager to access media files over Tailscale securely without reverse proxy setup.
+After deploying the proxy stack, services are accessible via:
+- MediaManager: `https://mediamanager.${DOMAIN}` (Pocket ID auth)
+- qBittorrent: `https://qbit.${DOMAIN}` (Pocket ID auth)
+- Prowlarr: `https://prowlarr.${DOMAIN}` (Pocket ID auth)
 
-https://tailscale.com/kb/1552/tailscale-services
+Direct port access (`localhost:13000`, etc.) remains available as fallback.

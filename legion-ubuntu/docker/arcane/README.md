@@ -1,17 +1,22 @@
-# Initial setup
+# Arcane Setup
 
-Arcane requires some initial setup before it can be used. Follow these steps to get started:
+## Initial Configuration
 
-## 1. Generate .env file
-
-Run this command to create your `.env` file with the correct configuration:
-
+1. Generate `.env` file (if not already done):
 ```bash
 echo "PROJECTS_DIRECTORY=$(cd .. && pwd)" >> .env && docker run --rm ghcr.io/getarcaneapp/arcane:latest /app/arcane generate secret | grep '=' >> .env
 ```
 
-This will:
-- Set `PROJECTS_DIRECTORY` to the absolute path of the parent directory (docker directory)
-- Generate and append `ENCRYPTION_KEY` and `JWT_SECRET`
+This sets `PROJECTS_DIRECTORY` and generates `ENCRYPTION_KEY` and `JWT_SECRET`.
 
-NOTE: Only run this command once. If you run it again, it will regenerate new keys and overwrite your existing configuration.
+**NOTE:** Only run once. Running again will regenerate keys.
+
+2. Deploy:
+```bash
+docker compose up -d
+```
+
+## Access
+
+- Via Traefik: `https://arcane.legion-ubuntu.tailafe4b.ts.net` (built-in auth)
+- Direct: `http://localhost:3552` (fallback)

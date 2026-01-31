@@ -1,13 +1,22 @@
-## Pre-requisite
+## Setup
 
-1. Ensure the external networks exist by running from the parent directory:
+1. Ensure networks exist:
 ```bash
 make netup
 ```
 
-2. Copy the environment file and configure it:
+2. Configure environment (if not already done):
 ```bash
 cp .env.example .env
+# Update HOMEPAGE_ALLOWED_HOSTS and DOMAIN in .env
 ```
 
-Then add the frontend URL to the `HOMEPAGE_ALLOWED_HOSTS` variable in the `.env` file.
+3. Deploy:
+```bash
+docker compose up -d
+```
+
+## Access
+
+- Via Traefik: `https://home.legion-ubuntu.tailafe4b.ts.net` (Pocket ID auth)
+- Direct: `http://localhost:15000` (fallback)

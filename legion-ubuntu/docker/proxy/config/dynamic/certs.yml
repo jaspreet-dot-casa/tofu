@@ -1,0 +1,5 @@
+# Static certificates no longer needed - using Let's Encrypt DNS-01 challenge
+tls:
+  options:
+    default:
+      minVersion: VersionTLS12

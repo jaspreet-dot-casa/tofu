@@ -39,6 +39,27 @@ services:
     networks:
       - vpn
       - dashboard
+      - proxy
+    labels:
+      - "traefik.enable=true"
+
+      # qBittorrent router
+      - "traefik.http.routers.qbittorrent.rule=Host(`qbit.${DOMAIN}`)"
+      - "traefik.http.routers.qbittorrent.entrypoints=websecure"
+      - "traefik.http.routers.qbittorrent.tls=true"
+      - "traefik.http.routers.qbittorrent.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.qbittorrent.service=qbittorrent"
+      - "traefik.http.services.qbittorrent.loadbalancer.server.port=13001"
+      - "traefik.http.routers.qbittorrent.middlewares=security-headers@file"
+
+      # Prowlarr router
+      - "traefik.http.routers.prowlarr.rule=Host(`prowlarr.${DOMAIN}`)"
+      - "traefik.http.routers.prowlarr.entrypoints=websecure"
+      - "traefik.http.routers.prowlarr.tls=true"
+      - "traefik.http.routers.prowlarr.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.prowlarr.service=prowlarr"
+      - "traefik.http.services.prowlarr.loadbalancer.server.port=9696"
+      - "traefik.http.routers.prowlarr.middlewares=security-headers@file"
 
   # Didn't work for me but keeping it here for reference
   # Add this to ports in gluetun: `- 9117:9117  # jackett`
@@ -85,6 +106,7 @@ services:
       - vpn
       - dashboard
       - mediamanager
+      - proxy
     env_file:
       - ./.env
     volumes:
@@ -104,6 +126,14 @@ services:
       prowlarr:
         condition: service_started
     restart: unless-stopped
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.mediamanager.rule=Host(`mediamanager.${DOMAIN}`)"
+      - "traefik.http.routers.mediamanager.entrypoints=websecure"
+      - "traefik.http.routers.mediamanager.tls=true"
+      - "traefik.http.routers.mediamanager.tls.certresolver=letsencrypt"
+      - "traefik.http.services.mediamanager.loadbalancer.server.port=8000"
+      - "traefik.http.routers.mediamanager.middlewares=security-headers@file"
 
   db:
     container_name: mediamanager_postgres
@@ -132,5 +162,7 @@ networks:
   vpn:
     external: true
   dashboard:
+    external: true
+  proxy:
     external: true
   mediamanager:
