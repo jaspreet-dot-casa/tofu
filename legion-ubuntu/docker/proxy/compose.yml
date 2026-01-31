@@ -50,13 +50,43 @@ services:
     labels:
       - "traefik.enable=true"
 
-      # Dashboard router - accessible at /api and /dashboard
-      - "traefik.http.routers.dashboard.rule=Host(`${DOMAIN}`) && (PathPrefix(`/api`) || PathPrefix(`/dashboard`))"
+      # Request wildcard certificate for all subdomains
+      - "traefik.http.routers.traefik-wildcard.rule=Host(`${DOMAIN}`) || HostRegexp(`{subdomain:[a-z]+}.${DOMAIN}`)"
+      - "traefik.http.routers.traefik-wildcard.tls=true"
+      - "traefik.http.routers.traefik-wildcard.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.traefik-wildcard.tls.domains[0].main=${DOMAIN}"
+      - "traefik.http.routers.traefik-wildcard.tls.domains[0].sans=*.${DOMAIN}"
+
+      # Dashboard router - accessible at dashboard subdomain
+      - "traefik.http.routers.dashboard.rule=Host(`dashboard.${DOMAIN}`)"
       - "traefik.http.routers.dashboard.entrypoints=websecure"
       - "traefik.http.routers.dashboard.tls=true"
-      - "traefik.http.routers.dashboard.tls.certresolver=letsencrypt"
       - "traefik.http.routers.dashboard.service=api@internal"
-      - "traefik.http.routers.dashboard.priority=10"
+
+  tinyauth:
+    container_name: tinyauth
+    image: ghcr.io/steveiliop56/tinyauth:v4
+    restart: unless-stopped
+    networks:
+      - proxy
+    environment:
+      - TZ=${TZ:-Australia/Melbourne}
+      - APP_URL=${TINYAUTH_APPURL}
+      - USERS=${TINYAUTH_AUTH_USERS}
+    volumes:
+      - tinyauth-data:/data
+    labels:
+      # Tinyauth web UI router - on apps subdomain
+      - "traefik.enable=true"
+      - "traefik.http.routers.tinyauth.rule=Host(`apps.${DOMAIN}`)"
+      - "traefik.http.routers.tinyauth.entrypoints=websecure"
+      - "traefik.http.routers.tinyauth.tls=true"
+      - "traefik.http.routers.tinyauth.tls.certresolver=letsencrypt"
+      - "traefik.http.services.tinyauth.loadbalancer.server.port=3000"
+
+      # ForwardAuth middleware definition
+      - "traefik.http.middlewares.tinyauth.forwardauth.address=http://tinyauth:3000/api/auth/traefik"
+      - "traefik.http.middlewares.tinyauth.forwardauth.trustForwardHeader=true"
 
   pocketid:
     image: ghcr.io/pocket-id/pocket-id:v2
@@ -72,7 +102,7 @@ services:
       - PUBLIC_APP_URL=https://auth.${DOMAIN}
       - APP_URL=https://auth.${DOMAIN}
       - TRUST_PROXY=true
-      - DATABASE_URL=postgresql://pocketid:${POCKETID_DB_PASSWORD}@pocketid-db:5432/pocketid
+      - DB_CONNECTION_STRING=postgresql://pocketid:${POCKETID_DB_PASSWORD}@pocketid-db:5432/pocketid
       - INTERNAL_BACKEND_URL=http://pocketid:80
       - ENCRYPTION_KEY=${ENCRYPTION_KEY}
     labels:
@@ -113,3 +143,5 @@ networks:
 volumes:
   pocketid-db-data:
     name: pocketid-db-data
+  tinyauth-data:
+    name: tinyauth-data
