@@ -19,6 +19,8 @@ netup:
 compose-down:
 	cd arcane && docker compose down
 	cd dashboards && docker compose down
+	cd glances && docker compose down
+	cd immich && docker compose down
 	cd plex && docker compose down
 	cd vpnstack && docker compose down
 	cd proxy && docker compose down
@@ -27,5 +29,7 @@ compose-up:
 	cd proxy && docker compose up -d
 	cd vpnstack && docker compose up -d
 	cd plex && docker compose up -d
+	cd glances && docker compose up -d
+	cd immich && docker compose up -d
 	cd dashboards && docker compose up -d
 	cd arcane && docker compose up -d
