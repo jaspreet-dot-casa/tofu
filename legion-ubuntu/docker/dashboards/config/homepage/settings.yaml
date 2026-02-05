@@ -2,6 +2,40 @@
 # For configuration options and examples, please see:
 # https://gethomepage.dev/configs/settings/
 
+title: Home Dashboard
+
+theme: dark
+color: slate
+
+background:
+  image: https://images.unsplash.com/photo-1544306094-e2dcf9479da3?w=1920
+  blur: sm
+  saturate: 75
+  brightness: 50
+  opacity: 50
+
+cardBlur: md
+
+headerStyle: clean
+
+layout:
+  Media:
+    style: row
+    columns: 3
+    icon: mdi-play-circle
+  Downloads:
+    style: row
+    columns: 3
+    icon: mdi-download
+  Infrastructure:
+    style: row
+    columns: 3
+    icon: mdi-server
+  Authentication:
+    style: row
+    columns: 2
+    icon: mdi-shield-lock
+
 providers:
-  openweathermap: {{HOMEPAGE_VAR_OPENWEATHERMAP_API_KEY}}
-  weatherapi: {{HOMEPAGE_VAR_WEATHERAPI_API_KEY}}
+  openweathermap: "{{HOMEPAGE_VAR_OPENWEATHERMAP_API_KEY}}"
+  weatherapi: "{{HOMEPAGE_VAR_WEATHERAPI_API_KEY}}"

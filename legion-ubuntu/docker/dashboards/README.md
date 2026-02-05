@@ -18,5 +18,5 @@ docker compose up -d
 
 ## Access
 
-- Via Traefik: `https://home.legion-ubuntu.tailafe4b.ts.net` (Pocket ID auth)
+- Via Traefik: `https://home.glorzo.jaspreet.casa` (Pocket ID auth)
 - Direct: `http://localhost:15000` (fallback)

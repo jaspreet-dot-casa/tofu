@@ -2,26 +2,85 @@
 # For configuration options and examples, please see:
 # https://gethomepage.dev/configs/services/
 
-- VPN Stack:
+- Media:
+    - Plex:
+        icon: plex.png
+        href: "{{HOMEPAGE_VAR_PLEX_URL}}"
+        description: Media streaming server
+    - Immich:
+        icon: immich.png
+        href: "https://photos.{{HOMEPAGE_VAR_DOMAIN}}"
+        description: Photo & video backup
     - Media Manager:
-        href: "{{HOMEPAGE_VAR_BASE_URL}}:13000/"
-        description: Media Manager for finding media
+        icon: mdi-movie-search
+        href: "https://mediamanager.{{HOMEPAGE_VAR_DOMAIN}}"
+        description: Media discovery & management
+
+- Downloads:
     - qBittorrent:
-        href: "{{HOMEPAGE_VAR_BASE_URL}}:13001"
-        description: The torrenting tool
+        icon: qbittorrent.png
+        href: "https://qbit.{{HOMEPAGE_VAR_DOMAIN}}"
+        description: Torrent client
+        server: my-docker
+        container: qbittorrent
+        widget:
+          type: qbittorrent
+          url: http://gluetun:13001
+          username: "{{HOMEPAGE_VAR_QBITTORRENT_USERNAME}}"
+          password: "{{HOMEPAGE_VAR_QBITTORRENT_PASSWORD}}"
     - Prowlarr:
-        href: "{{HOMEPAGE_VAR_BASE_URL}}:9696"
-        description: The indexer
+        icon: prowlarr.png
+        href: "https://prowlarr.{{HOMEPAGE_VAR_DOMAIN}}"
+        description: Indexer manager
+        server: my-docker
+        container: prowlarr
     - Gluetun:
         icon: gluetun.png
+        href: "#"
+        description: VPN tunnel
         server: my-docker
-        description: VPN bridge
         container: gluetun
         widget:
           type: gluetun
           url: http://gluetun:8000
 
-- Docker manager:
+- Infrastructure:
+    - Traefik:
+        icon: traefik.png
+        href: "https://dashboard.{{HOMEPAGE_VAR_DOMAIN}}"
+        description: Reverse proxy & load balancer
+        server: my-docker
+        container: traefik
+        widget:
+          type: traefik
+          url: http://traefik:8080
+    - Glances:
+        icon: glances.png
+        href: "https://glances.{{HOMEPAGE_VAR_DOMAIN}}"
+        description: System monitoring
+        server: my-docker
+        container: glances
+        widget:
+          type: glances
+          url: http://glances:61208
+          metric: cpu
     - Arcane:
-        href: "{{HOMEPAGE_VAR_BASE_URL}}:3552"
-        description: Arcane helps you manage docker projects easily
+        icon: docker.png
+        href: "https://arcane.{{HOMEPAGE_VAR_DOMAIN}}"
+        description: Docker project management
+        server: my-docker
+        container: arcane
+
+- Authentication:
+    - Pocket ID:
+        icon: authentik.png
+        href: "https://auth.{{HOMEPAGE_VAR_DOMAIN}}"
+        description: Identity provider (OIDC)
+        server: my-docker
+        container: pocketid
+    - TinyAuth:
+        icon: authelia.png
+        href: "https://apps.{{HOMEPAGE_VAR_DOMAIN}}"
+        description: Forward auth middleware
+        server: my-docker
+        container: tinyauth

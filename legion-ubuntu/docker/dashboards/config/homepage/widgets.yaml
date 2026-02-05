@@ -2,11 +2,28 @@
 # For configuration options and examples, please see:
 # https://gethomepage.dev/configs/info-widgets/
 
-- resources:
-    cpu: true
-    memory: true
-    disk: /
+- logo:
+    icon: https://cdn.jsdelivr.net/gh/walkxcode/dashboard-icons/png/homepage.png
+
+- greeting:
+    text_size: xl
+    text: Welcome Home
+
+- datetime:
+    text_size: l
+    format:
+      dateStyle: long
+      timeStyle: short
+      hour12: true
 
 - search:
     provider: google
     target: _blank
+
+- resources:
+    cpu: true
+    memory: true
+    disk: /
+    cputemp: true
+    uptime: true
+    refresh: 3000
