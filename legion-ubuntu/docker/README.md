@@ -20,7 +20,7 @@ All services accessible via `https://<service>.${DOMAIN}`:
 - `qbit` - qBittorrent downloads (Pocket ID auth)
 - `prowlarr` - Indexer management (Pocket ID auth)
 - `arcane` - Docker management (built-in auth)
-- `traefik` - Traefik dashboard (Pocket ID auth)
+- `dashboard` - Traefik dashboard (Pocket ID auth)
 - `auth` - Pocket ID authentication
 
 Plex remains on host network (unchanged).

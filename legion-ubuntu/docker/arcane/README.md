@@ -18,5 +18,5 @@ docker compose up -d
 
 ## Access
 
-- Via Traefik: `https://arcane.legion-ubuntu.tailafe4b.ts.net` (built-in auth)
+- Via Traefik: `https://arcane.glorzo.jaspreet.casa` (built-in auth)
 - Direct: `http://localhost:3552` (fallback)

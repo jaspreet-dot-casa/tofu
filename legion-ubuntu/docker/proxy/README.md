@@ -27,5 +27,5 @@ The `.env` file is pre-configured with:
 
 ## Access
 
-- Traefik dashboard: `https://traefik.${DOMAIN}`
+- Traefik dashboard: `https://dashboard.${DOMAIN}`
 - Pocket ID: `https://auth.${DOMAIN}`

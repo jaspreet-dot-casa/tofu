@@ -80,7 +80,7 @@
         container: pocketid
     - TinyAuth:
         icon: authelia.png
-        href: "https://apps.{{HOMEPAGE_VAR_DOMAIN}}"
+        href: "https://tinyauth.{{HOMEPAGE_VAR_DOMAIN}}"
         description: Forward auth middleware
         server: my-docker
         container: tinyauth

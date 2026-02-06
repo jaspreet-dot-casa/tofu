@@ -71,7 +71,7 @@ services:
       - proxy
     environment:
       - TZ=${TZ:-Australia/Melbourne}
-      - APP_URL=${TINYAUTH_APPURL}
+      - APP_URL=${TINYAUTH_APP_URL}
       - USERS=${TINYAUTH_AUTH_USERS}
       - OAUTH_AUTO_REDIRECT=pocketid
       - PROVIDERS_POCKETID_CLIENT_ID=${TINYAUTH_PROVIDERS_POCKETID_CLIENT_ID}
@@ -86,9 +86,9 @@ services:
       - tinyauth-data:/data
       - /var/run/docker.sock:/var/run/docker.sock:ro
     labels:
-      # Tinyauth web UI router - on apps subdomain
+      # Tinyauth web UI router - on tinyauth subdomain
       - "traefik.enable=true"
-      - "traefik.http.routers.tinyauth.rule=Host(`apps.${DOMAIN}`)"
+      - "traefik.http.routers.tinyauth.rule=Host(`tinyauth.${DOMAIN}`)"
       - "traefik.http.routers.tinyauth.entrypoints=websecure"
       - "traefik.http.routers.tinyauth.tls=true"
       - "traefik.http.routers.tinyauth.tls.certresolver=letsencrypt"
