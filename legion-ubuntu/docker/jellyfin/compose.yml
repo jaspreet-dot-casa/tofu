@@ -3,6 +3,11 @@ services:
     image: lscr.io/linuxserver/jellyfin:latest
     container_name: jellyfin
     restart: unless-stopped
+    ports:
+      - 8096:8096 # For HTTP
+      - 8920:8920 # For HTTPS
+      - 7359:7359/udp # For Client discovery
+      - 1900:1900/udp # For DLNA
     networks:
       - proxy
     environment:
@@ -14,8 +19,7 @@ services:
       - NVIDIA_DRIVER_CAPABILITIES=${NVIDIA_DRIVER_CAPABILITIES:-compute,video,utility}
     volumes:
       - ${CONFIG_PATH}:/config
-      - ${MEDIA_TV_PATH}:/data/tvshows:ro
-      - ${MEDIA_MOVIES_PATH}:/data/movies:ro
+      - ${MEDIA_PATH}:/media
     deploy:
       resources:
         reservations:
