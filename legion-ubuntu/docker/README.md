@@ -19,6 +19,7 @@ All services accessible via `https://<service>.${DOMAIN}`:
 - `mediamanager` - Media library management (Pocket ID auth)
 - `qbit` - qBittorrent downloads (Pocket ID auth)
 - `prowlarr` - Indexer management (Pocket ID auth)
+- `jellyfin` - Jellyfin media server (built-in auth, NVIDIA GPU accelerated)
 - `arcane` - Docker management (built-in auth)
 - `dashboard` - Traefik dashboard (Pocket ID auth)
 - `auth` - Pocket ID authentication
@@ -43,4 +44,8 @@ See individual directories for detailed setup:
 - `/vpnstack` - MediaManager, qBittorrent, Prowlarr (VPN-routed)
 - `/dashboards` - Homepage
 - `/arcane` - Docker management
+- `/jellyfin` - Jellyfin media server (NVIDIA hardware acceleration)
 - `/plex` - Plex media server
+
+Notes:
+- The Base URL is set in .env.global file as `DOMAIN`.
