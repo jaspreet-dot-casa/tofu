@@ -19,6 +19,7 @@ netup:
 compose-down:
 	cd arcane && docker compose down
 	cd dashboards && docker compose down
+	cd filebrowser && docker compose down
 	cd glances && docker compose down
 	cd immich && docker compose down
 	cd jellyfin && docker compose down
@@ -33,5 +34,6 @@ compose-up:
 	cd jellyfin && docker compose up -d
 	cd glances && docker compose up -d
 	cd immich && docker compose up -d
+	cd filebrowser && docker compose up -d
 	cd dashboards && docker compose up -d
 	cd arcane && docker compose up -d
