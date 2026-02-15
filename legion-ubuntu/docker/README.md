@@ -21,7 +21,8 @@ All services accessible via `https://<service>.${DOMAIN}`:
 - `prowlarr` - Indexer management (Pocket ID auth)
 - `jellyfin` - Jellyfin media server (built-in auth, NVIDIA GPU accelerated)
 - `arcane` - Docker management (built-in auth)
-- `dashboard` - Traefik dashboard (Pocket ID auth)
+- `dashboard` - Homarr dashboard (Pocket ID auth)
+- `traefik` - Traefik dashboard (Pocket ID auth)
 - `auth` - Pocket ID authentication
 
 Plex remains on host network (unchanged).
@@ -42,7 +43,7 @@ make compose-down    # Stop all services
 See individual directories for detailed setup:
 - `/proxy` - Traefik + Pocket ID
 - `/vpnstack` - MediaManager, qBittorrent, Prowlarr (VPN-routed)
-- `/dashboards` - Homepage
+- `/dashboards` - Homepage, Homarr
 - `/arcane` - Docker management
 - `/jellyfin` - Jellyfin media server (NVIDIA hardware acceleration)
 - `/plex` - Plex media server

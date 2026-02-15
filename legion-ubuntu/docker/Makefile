@@ -16,6 +16,7 @@ netup:
 	docker network inspect dashboard >/dev/null 2>&1  ||  docker network create dashboard
 	docker network inspect dashboard >/dev/null 2>&1 && echo "dashboard network is up" || echo "dashboard network is down"
 
+.PHONY: compose-down
 compose-down:
 	cd arcane && docker compose down
 	cd dashboards && docker compose down
@@ -27,8 +28,9 @@ compose-down:
 	cd vpnstack && docker compose down
 	cd proxy && docker compose down
 
+.PHONY: compose-up
 compose-up:
-	cd proxy && docker compose up -d
+	cd proxy && docker compose up -d --wait
 	cd vpnstack && docker compose up -d
 	cd plex && docker compose up -d
 	cd jellyfin && docker compose up -d

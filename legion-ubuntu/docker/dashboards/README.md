@@ -9,6 +9,7 @@ make netup
 ```bash
 cp .env.example .env
 # Update HOMEPAGE_ALLOWED_HOSTS and DOMAIN in .env
+# Generate Homarr encryption key: openssl rand -hex 32
 ```
 
 3. Deploy:
@@ -18,5 +19,9 @@ docker compose up -d
 
 ## Access
 
-- Via Traefik: `https://home.glorzo.jaspreet.casa` (Pocket ID auth)
+### Homepage
+- Via Traefik: `https://home.${DOMAIN}`
 - Direct: `http://localhost:15000` (fallback)
+
+### Homarr
+- Via Traefik: `https://dashboard.${DOMAIN}` (tinyauth SSO)

@@ -25,6 +25,31 @@ services:
       - "traefik.http.services.homepage.loadbalancer.server.port=3000"
       - "traefik.http.routers.homepage.middlewares=security-headers@file"
 
+  homarr:
+    image: ghcr.io/homarr-labs/homarr:latest
+    container_name: homarr
+    restart: unless-stopped
+    env_file:
+      - ../.env.global
+      - ./.env
+    environment:
+      - SECRET_ENCRYPTION_KEY=${HOMARR_SECRET_ENCRYPTION_KEY}
+      - TZ=${TZ:-Australia/Melbourne}
+    volumes:
+      - ./config/homarr/appdata:/appdata
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    networks:
+      - dashboard
+      - proxy
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.homarr.rule=Host(`dashboard.${DOMAIN}`)"
+      - "traefik.http.routers.homarr.entrypoints=websecure"
+      - "traefik.http.routers.homarr.tls=true"
+      - "traefik.http.routers.homarr.tls.certresolver=letsencrypt"
+      - "traefik.http.services.homarr.loadbalancer.server.port=7575"
+      - "traefik.http.routers.homarr.middlewares=tinyauth@docker,security-headers@file"
+
 networks:
   dashboard:
     external: true

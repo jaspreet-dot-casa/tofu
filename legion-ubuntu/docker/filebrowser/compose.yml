@@ -16,19 +16,10 @@ services:
       # Single service definition
       - "traefik.http.services.filebrowser.loadbalancer.server.port=80"
 
-      # Public routes (no tinyauth - allows shares to work without auth)
-      - "traefik.http.routers.filebrowser-public.rule=Host(`files.${DOMAIN}`) && PathPrefix(`/public`)"
-      - "traefik.http.routers.filebrowser-public.entrypoints=websecure"
-      - "traefik.http.routers.filebrowser-public.tls=true"
-      - "traefik.http.routers.filebrowser-public.tls.certresolver=letsencrypt"
-      - "traefik.http.routers.filebrowser-public.service=filebrowser"
-
-      # Private routes (with tinyauth)
       - "traefik.http.routers.filebrowser.rule=Host(`files.${DOMAIN}`)"
       - "traefik.http.routers.filebrowser.entrypoints=websecure"
       - "traefik.http.routers.filebrowser.tls=true"
       - "traefik.http.routers.filebrowser.tls.certresolver=letsencrypt"
-      - "traefik.http.routers.filebrowser.middlewares=tinyauth@docker"
       - "traefik.http.routers.filebrowser.service=filebrowser"
 
       # Disable request body buffering for large uploads

@@ -44,10 +44,18 @@
           type: gluetun
           url: http://gluetun:8000
 
+- Storage:
+    - FileBrowser:
+        icon: filebrowser.png
+        href: "https://files.{{HOMEPAGE_VAR_DOMAIN}}"
+        description: Web-based file manager
+        server: my-docker
+        container: filebrowser
+
 - Infrastructure:
     - Traefik:
         icon: traefik.png
-        href: "https://dashboard.{{HOMEPAGE_VAR_DOMAIN}}"
+        href: "https://traefik.{{HOMEPAGE_VAR_DOMAIN}}"
         description: Reverse proxy & load balancer
         server: my-docker
         container: traefik
