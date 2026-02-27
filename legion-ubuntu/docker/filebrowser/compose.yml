@@ -1,19 +1,30 @@
 services:
   filebrowser:
-    image: gtstef/filebrowser:stable
+    image: filebrowser/filebrowser
     container_name: filebrowser
     restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    user: "${PUID:-1000}:${PGID:-1000}"
     networks:
       - proxy
+    environment:
+      - TZ=${TZ:-Australia/Melbourne}
     volumes:
-      - ${DATA_PATH}:/folder
-      - ./config.yaml:/home/filebrowser/config.yaml:ro
-      - filebrowser-data:/home/filebrowser/data
+      - ${DATA_PATH}:/srv
+      - filebrowser-database:/database
+      - filebrowser-config:/config
+    command:
+      - --address=0.0.0.0
+      - --port=80
+      - --root=/srv
+      - --database=/database/filebrowser.db
+      - --noauth
+      - --disable-exec
     labels:
       - "traefik.enable=true"
       - "traefik.docker.network=proxy"
 
-      # Single service definition
       - "traefik.http.services.filebrowser.loadbalancer.server.port=80"
 
       - "traefik.http.routers.filebrowser.rule=Host(`files.${DOMAIN}`)"
@@ -22,8 +33,7 @@ services:
       - "traefik.http.routers.filebrowser.tls.certresolver=letsencrypt"
       - "traefik.http.routers.filebrowser.service=filebrowser"
 
-      # Disable request body buffering for large uploads
-      - "traefik.http.middlewares.filebrowser-buffering.buffering.maxRequestBodyBytes=0"
+      - "traefik.http.routers.filebrowser.middlewares=tinyauth@docker"
 
 networks:
   proxy:
@@ -31,5 +41,7 @@ networks:
     external: true
 
 volumes:
-  filebrowser-data:
-    name: filebrowser-data
+  filebrowser-database:
+    name: filebrowser-database
+  filebrowser-config:
+    name: filebrowser-config

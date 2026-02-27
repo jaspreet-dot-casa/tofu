@@ -3,6 +3,11 @@ ufw-setup:
 	sudo ufw allow 22/tcp comment 'SSH'
 	sudo ufw allow 80/tcp comment 'Traefik HTTP'
 	sudo ufw allow 443/tcp comment 'Traefik HTTPS'
+	sudo ufw allow 2022/tcp comment 'SFTPGo SFTP'
+	sudo ufw allow 8096/tcp comment 'Jellyfin HTTP'
+	sudo ufw allow 8920/tcp comment 'Jellyfin HTTPS'
+	sudo ufw allow 1900/udp comment 'Jellyfin DLNA discovery'
+	sudo ufw allow 7359/udp comment 'Jellyfin client discovery'
 	sudo ufw allow 32400/tcp comment 'Plex'
 	sudo ufw allow 53317/tcp comment 'LocalSend'
 	@echo "UFW rules configured. Enable with: sudo ufw enable"
@@ -25,12 +30,14 @@ compose-down:
 	cd immich && docker compose down
 	cd jellyfin && docker compose down
 	cd plex && docker compose down
+	cd sftpgo && docker compose down
 	cd vpnstack && docker compose down
 	cd proxy && docker compose down
 
 .PHONY: compose-up
 compose-up:
 	cd proxy && docker compose up -d --wait
+	cd sftpgo && docker compose up -d
 	cd vpnstack && docker compose up -d
 	cd plex && docker compose up -d
 	cd jellyfin && docker compose up -d

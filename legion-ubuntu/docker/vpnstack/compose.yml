@@ -25,7 +25,7 @@ services:
       - NET_ADMIN
     devices:
       - /dev/net/tun:/dev/net/tun
-    ports:
+    ports:  # these are not exposed via ufw, accessible via Tailscale
       - 13001:13001  # qbitorrent
       - 9696:9696  # prowlarr
       - 6881:6881/tcp

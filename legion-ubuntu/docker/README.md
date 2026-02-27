@@ -20,6 +20,7 @@ All services accessible via `https://<service>.${DOMAIN}`:
 - `qbit` - qBittorrent downloads (Pocket ID auth)
 - `prowlarr` - Indexer management (Pocket ID auth)
 - `jellyfin` - Jellyfin media server (built-in auth, NVIDIA GPU accelerated)
+- `sftp` - SFTPGo file transfer (Pocket ID auth, SFTP on port 2022)
 - `arcane` - Docker management (built-in auth)
 - `dashboard` - Homarr dashboard (Pocket ID auth)
 - `traefik` - Traefik dashboard (Pocket ID auth)
@@ -44,6 +45,7 @@ See individual directories for detailed setup:
 - `/proxy` - Traefik + Pocket ID
 - `/vpnstack` - MediaManager, qBittorrent, Prowlarr (VPN-routed)
 - `/dashboards` - Homepage, Homarr
+- `/sftpgo` - SFTPGo file transfer server
 - `/arcane` - Docker management
 - `/jellyfin` - Jellyfin media server (NVIDIA hardware acceleration)
 - `/plex` - Plex media server
