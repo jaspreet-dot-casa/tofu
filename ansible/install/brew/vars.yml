@@ -1,0 +1,14 @@
+---
+# Shared directory to install Linuxbrew in
+linuxbrew_prefix: "/home/linuxbrew/.linuxbrew"
+linuxbrew_install_tmp: "/tmp/linuxbrew"
+linuxbrew_install_url: "https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh"
+linuxbrew_init_shell: true
+
+# OS-specific dependencies
+linuxbrew_dependencies:
+  - git
+  - curl
+  - build-essential
+  - file
+  - procps

@@ -1,0 +1,66 @@
+---
+- name: Check if Homebrew is already installed
+  ansible.builtin.stat:
+    path: "{{ linuxbrew_prefix }}/bin/brew"
+  register: brew_st
+
+- name: Install Homebrew
+  when: not brew_st.stat.exists
+  block:
+    - name: Install dependencies
+      ansible.builtin.apt:
+        name: "{{ linuxbrew_dependencies }}"
+        state: present
+        update_cache: true
+      become: true
+
+    - name: Create temporary directory
+      ansible.builtin.file:
+        path: "{{ linuxbrew_install_tmp }}"
+        state: directory
+        mode: "0700"
+
+    - name: Download Homebrew install script
+      ansible.builtin.get_url:
+        url: "{{ linuxbrew_install_url }}"
+        dest: "{{ linuxbrew_install_tmp }}/install.sh"
+        mode: "0700"
+
+    - name: Run Homebrew installer
+      ansible.builtin.command: "{{ linuxbrew_install_tmp }}/install.sh"
+      environment:
+        NONINTERACTIVE: "1"
+
+    - name: Remove temporary directory
+      ansible.builtin.file:
+        path: "{{ linuxbrew_install_tmp }}"
+        state: absent
+
+- name: Configure shell
+  when: linuxbrew_init_shell
+  block:
+    - name: Check if .bashrc exists
+      ansible.builtin.stat:
+        path: "{{ ansible_env.HOME }}/.bashrc"
+      register: bashrc_st
+
+    - name: Add Homebrew to .bashrc
+      ansible.builtin.blockinfile:
+        path: "{{ ansible_env.HOME }}/.bashrc"
+        marker: "# {mark} ANSIBLE MANAGED: linuxbrew"
+        block: |
+          eval $({{ linuxbrew_prefix }}/bin/brew shellenv)
+      when: bashrc_st.stat.exists
+
+    - name: Check if .zshrc exists
+      ansible.builtin.stat:
+        path: "{{ ansible_env.HOME }}/.zshrc"
+      register: zshrc_st
+
+    - name: Add Homebrew to .zshrc
+      ansible.builtin.blockinfile:
+        path: "{{ ansible_env.HOME }}/.zshrc"
+        marker: "# {mark} ANSIBLE MANAGED: linuxbrew"
+        block: |
+          eval $({{ linuxbrew_prefix }}/bin/brew shellenv)
+      when: zshrc_st.stat.exists

@@ -1,0 +1,19 @@
+---
+- name: Check if nvim config directory exists
+  ansible.builtin.stat:
+    path: "{{ ansible_env.HOME }}/.config/nvim"
+  register: nvim_config_st
+
+- name: Clone AstroVim repository
+  ansible.builtin.git:
+    repo: https://github.com/AstroNvim/template
+    dest: "{{ ansible_env.HOME }}/.config/nvim"
+    version: main
+    depth: 1
+  when: not nvim_config_st.stat.exists
+
+- name: Remove .git directory from AstroVim
+  ansible.builtin.file:
+    path: "{{ ansible_env.HOME }}/.config/nvim/.git"
+    state: absent
+  when: not nvim_config_st.stat.exists
