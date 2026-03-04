@@ -1,7 +1,7 @@
 ---
 - name: Add mise to .bashrc
   ansible.builtin.blockinfile:
-    path: "{{ ansible_env.HOME }}/.bashrc"
+    path: "{{ ansible_facts['env']['HOME'] }}/.bashrc"
     marker: "# {mark} ANSIBLE MANAGED: mise"
     block: |
       eval "$(mise activate bash)"
@@ -9,23 +9,25 @@
 
 - name: Add mise to .zshrc
   ansible.builtin.blockinfile:
-    path: "{{ ansible_env.HOME }}/.zshrc"
+    path: "{{ ansible_facts['env']['HOME'] }}/.zshrc"
     marker: "# {mark} ANSIBLE MANAGED: mise"
     block: |
       eval "$(mise activate zsh)"
   when: zshrc_st.stat.exists
 
+- name: Check installed mise tools
+  ansible.builtin.command: "{{ linuxbrew_prefix }}/bin/mise ls --global --json"
+  register: mise_tools
+  changed_when: false
+
 - name: Install Go via mise
   ansible.builtin.command: "{{ linuxbrew_prefix }}/bin/mise use --global go@latest"
-  args:
-    creates: "{{ ansible_env.HOME }}/.local/share/mise/installs/go"
+  when: "'go' not in (mise_tools.stdout | from_json)"
 
 - name: Install Python via mise
-  ansible.builtin.command: "{{ linuxbrew_prefix }}/bin/mise use --global python@latest"
-  args:
-    creates: "{{ ansible_env.HOME }}/.local/share/mise/installs/python"
+  ansible.builtin.command: "{{ linuxbrew_prefix }}/bin/mise use --global python@3.14"
+  when: "'python' not in (mise_tools.stdout | from_json)"
 
 - name: Install Node via mise
   ansible.builtin.command: "{{ linuxbrew_prefix }}/bin/mise use --global node@lts"
-  args:
-    creates: "{{ ansible_env.HOME }}/.local/share/mise/installs/node"
+  when: "'node' not in (mise_tools.stdout | from_json)"

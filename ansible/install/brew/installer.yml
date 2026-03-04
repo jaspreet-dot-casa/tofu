@@ -7,13 +7,6 @@
 - name: Install Homebrew
   when: not brew_st.stat.exists
   block:
-    - name: Install dependencies
-      ansible.builtin.apt:
-        name: "{{ linuxbrew_dependencies }}"
-        state: present
-        update_cache: true
-      become: true
-
     - name: Create temporary directory
       ansible.builtin.file:
         path: "{{ linuxbrew_install_tmp }}"
@@ -27,7 +20,7 @@
         mode: "0700"
 
     - name: Run Homebrew installer
-      ansible.builtin.command: "{{ linuxbrew_install_tmp }}/install.sh"
+      ansible.builtin.command: "bash {{ linuxbrew_install_tmp }}/install.sh"
       environment:
         NONINTERACTIVE: "1"
 
@@ -41,12 +34,12 @@
   block:
     - name: Check if .bashrc exists
       ansible.builtin.stat:
-        path: "{{ ansible_env.HOME }}/.bashrc"
+        path: "{{ ansible_facts['env']['HOME'] }}/.bashrc"
       register: bashrc_st
 
     - name: Add Homebrew to .bashrc
       ansible.builtin.blockinfile:
-        path: "{{ ansible_env.HOME }}/.bashrc"
+        path: "{{ ansible_facts['env']['HOME'] }}/.bashrc"
         marker: "# {mark} ANSIBLE MANAGED: linuxbrew"
         block: |
           eval $({{ linuxbrew_prefix }}/bin/brew shellenv)
@@ -54,12 +47,12 @@
 
     - name: Check if .zshrc exists
       ansible.builtin.stat:
-        path: "{{ ansible_env.HOME }}/.zshrc"
+        path: "{{ ansible_facts['env']['HOME'] }}/.zshrc"
       register: zshrc_st
 
     - name: Add Homebrew to .zshrc
       ansible.builtin.blockinfile:
-        path: "{{ ansible_env.HOME }}/.zshrc"
+        path: "{{ ansible_facts['env']['HOME'] }}/.zshrc"
         marker: "# {mark} ANSIBLE MANAGED: linuxbrew"
         block: |
           eval $({{ linuxbrew_prefix }}/bin/brew shellenv)

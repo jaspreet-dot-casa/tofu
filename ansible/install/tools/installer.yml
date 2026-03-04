@@ -1,16 +1,18 @@
 ---
 - name: Install Homebrew packages
-  ansible.builtin.command: "{{ linuxbrew_prefix }}/bin/brew install {{ item }}"
-  loop: "{{ brew_packages }}"
+  community.general.homebrew:
+    name: "{{ brew_packages }}"
+    path: "{{ linuxbrew_prefix }}/bin"
+    state: present
 
 - name: Check if .bashrc exists
   ansible.builtin.stat:
-    path: "{{ ansible_env.HOME }}/.bashrc"
+    path: "{{ ansible_facts['env']['HOME'] }}/.bashrc"
   register: bashrc_st
 
 - name: Check if .zshrc exists
   ansible.builtin.stat:
-    path: "{{ ansible_env.HOME }}/.zshrc"
+    path: "{{ ansible_facts['env']['HOME'] }}/.zshrc"
   register: zshrc_st
 
 - name: Configure tools in shell

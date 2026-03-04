@@ -5,36 +5,26 @@
   ## Configuration variables
   vars:
     # Specify packages to install using apt
-    apt_packages: []
+    apt_packages: "{{ linuxbrew_dependencies }}"
 
 
   vars_files:
     - install/brew/vars.yml
     - install/tools/vars.yml
 
-  # To see full documentation for a pre-bundled role, run: ansible-doc -t role ${role}
-  #   e.g. ansible-doc -t role git
-  roles:
-   - role: ohmyzsh
-     vars:
-       ohmyzsh_theme: simple
-       # See all plugins and their documentations at: https://github.com/ohmyzsh/ohmyzsh/tree/master/plugins
-       ohmyzsh_plugins:
-         - git
-         - fzf
 
   ## Other tasks to execute after the roles
   tasks:
     - name: Install apt packages
       become: true
-      when: apt_packages | length
+      when: apt_packages | length > 0
       ansible.builtin.apt:
         pkg: "{{ apt_packages }}"
         autoclean: true
         autoremove: true
         install_recommends: false
         update_cache: true
-        state: latest
+        state: present
     - name: Install Homebrew
       ansible.builtin.include_tasks: install/brew/installer.yml
 

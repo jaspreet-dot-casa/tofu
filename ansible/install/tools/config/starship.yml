@@ -1,7 +1,7 @@
 ---
 - name: Add starship to .bashrc
   ansible.builtin.blockinfile:
-    path: "{{ ansible_env.HOME }}/.bashrc"
+    path: "{{ ansible_facts['env']['HOME'] }}/.bashrc"
     marker: "# {mark} ANSIBLE MANAGED: starship"
     block: |
       eval "$(starship init bash)"
@@ -9,7 +9,7 @@
 
 - name: Add starship to .zshrc
   ansible.builtin.blockinfile:
-    path: "{{ ansible_env.HOME }}/.zshrc"
+    path: "{{ ansible_facts['env']['HOME'] }}/.zshrc"
     marker: "# {mark} ANSIBLE MANAGED: starship"
     block: |
       eval "$(starship init zsh)"

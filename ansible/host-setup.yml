@@ -1,0 +1,30 @@
+---
+- hosts: localhost
+  connection: local
+
+  vars_files:
+    - host/vars.yml
+
+  tasks:
+    - name: Install host packages
+      become: true
+      ansible.builtin.apt:
+        pkg: "{{ host_packages }}"
+        update_cache: true
+        install_recommends: false
+        state: latest
+
+    - name: Install LXD
+      become: true
+      community.general.snap:
+        name: lxd
+        state: present
+
+    - name: Add user to docker and lxd groups
+      become: true
+      ansible.builtin.user:
+        name: "{{ ansible_facts['env']['USER'] }}"
+        groups:
+          - docker
+          - lxd
+        append: true
