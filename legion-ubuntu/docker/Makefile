@@ -24,8 +24,8 @@ netup:
 .PHONY: compose-down
 compose-down:
 	cd arcane && docker compose down
+	cd boxbox && docker compose down
 	cd dashboards && docker compose down
-	cd filebrowser && docker compose down
 	cd glances && docker compose down
 	cd immich && docker compose down
 	cd jellyfin && docker compose down
@@ -36,13 +36,13 @@ compose-down:
 
 .PHONY: compose-up
 compose-up:
-	cd proxy && docker compose up -d --wait
+# 	cd proxy && docker compose up -d --wait
 	cd sftpgo && docker compose up -d
 	cd vpnstack && docker compose up -d
 	cd plex && docker compose up -d
 	cd jellyfin && docker compose up -d
 	cd glances && docker compose up -d
 	cd immich && docker compose up -d
-	cd filebrowser && docker compose up -d
+	cd boxbox && docker compose up -d
 	cd dashboards && docker compose up -d
 	cd arcane && docker compose up -d

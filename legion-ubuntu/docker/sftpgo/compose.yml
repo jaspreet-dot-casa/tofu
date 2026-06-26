@@ -28,7 +28,6 @@ services:
       - "traefik.http.routers.sftpgo.rule=Host(`sftp.${DOMAIN}`)"
       - "traefik.http.routers.sftpgo.entrypoints=websecure"
       - "traefik.http.routers.sftpgo.tls=true"
-      - "traefik.http.routers.sftpgo.tls.certresolver=letsencrypt"
       - "traefik.http.routers.sftpgo.service=sftpgo"
 
       - "traefik.http.routers.sftpgo.middlewares=tinyauth@docker"

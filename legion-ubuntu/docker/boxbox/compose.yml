@@ -1,0 +1,71 @@
+services:
+  boxbox:
+    image: ${BOXBOX_IMAGE:-ghcr.io/jr4dh3y/boxbox:latest}
+    container_name: boxbox
+    restart: unless-stopped
+    env_file:
+      - .env
+    networks:
+      - proxy
+    environment:
+      - TZ=${TZ:-Australia/Melbourne}
+      - BOXBOX_JWT_SECRET=${BOXBOX_JWT_SECRET:?Set BOXBOX_JWT_SECRET in .env}
+      - BOXBOX_USERS_admin=${BOXBOX_USERS_admin:?Set BOXBOX_USERS_admin in .env}
+      - BOXBOX_RATE_LIMIT_RPS=${BOXBOX_RATE_LIMIT_RPS:-10}
+      - BOXBOX_ALLOWED_ORIGINS=${BOXBOX_ALLOWED_ORIGINS:-}
+      - CONFIG_PATH=/app/config.yaml
+      - TMPDIR=/tmp/boxbox
+    volumes:
+      - ./backend/config.yaml:/app/config.yaml:ro
+      - /media/devmon:/media/devmon:rslave
+      - /:/host_root:ro,rslave
+      - /mnt:/mnt:rslave
+      - ${HOME_PATH:-/home/tagpro}:/home/user
+      - ${DESKTOP_PATH:-${HOME_PATH:-/home/tagpro}/Desktop}:/home/user/Desktop
+      - ${DOWNLOADS_PATH:-${HOME_PATH:-/home/tagpro}/Downloads}:/home/user/Downloads
+      - ${DOCUMENTS_PATH:-${HOME_PATH:-/home/tagpro}/Documents}:/home/user/Documents
+      - ${MUSIC_PATH:-${HOME_PATH:-/home/tagpro}/Music}:/home/user/Music
+      - ${PICTURES_PATH:-${HOME_PATH:-/home/tagpro}/Pictures}:/home/user/Pictures
+      - ${VIDEOS_PATH:-${HOME_PATH:-/home/tagpro}/Videos}:/home/user/Videos
+      - boxbox-temp:/tmp/boxbox
+      - boxbox-data:/data
+    cap_add:
+      - DAC_READ_SEARCH
+      - CHOWN
+      - FOWNER
+    security_opt:
+      - no-new-privileges:true
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+        reservations:
+          memory: 128M
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:80/health | grep -q 'ok' || exit 1"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=proxy"
+
+      - "traefik.http.services.boxbox.loadbalancer.server.port=80"
+
+      - "traefik.http.routers.boxbox.rule=Host(`boxbox.${DOMAIN}`)"
+      - "traefik.http.routers.boxbox.entrypoints=websecure"
+      - "traefik.http.routers.boxbox.tls=true"
+      - "traefik.http.routers.boxbox.service=boxbox"
+
+
+networks:
+  proxy:
+    name: proxy
+    external: true
+
+volumes:
+  boxbox-temp:
+    name: boxbox-temp
+  boxbox-data:
+    name: boxbox-data

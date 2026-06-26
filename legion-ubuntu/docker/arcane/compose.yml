@@ -22,7 +22,6 @@ services:
       - "traefik.http.routers.arcane.rule=Host(`arcane.${DOMAIN}`)"
       - "traefik.http.routers.arcane.entrypoints=websecure"
       - "traefik.http.routers.arcane.tls=true"
-      - "traefik.http.routers.arcane.tls.certresolver=letsencrypt"
       - "traefik.http.services.arcane.loadbalancer.server.port=3552"
       - "traefik.http.routers.arcane.middlewares=security-headers@file"
 

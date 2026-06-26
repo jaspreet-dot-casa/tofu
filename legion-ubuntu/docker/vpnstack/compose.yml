@@ -16,11 +16,13 @@ services:
       - ${MEDIA_PATH}/qbittorrent/downloads:/downloads # This is where your torrents will be saved
     restart: unless-stopped
     depends_on:
-      -  gluetun
+      gluetun:
+        condition: service_healthy
 
   gluetun:
     container_name: gluetun
     image: qmcgaw/gluetun
+    restart: unless-stopped
     cap_add:
       - NET_ADMIN
     devices:
@@ -47,7 +49,6 @@ services:
       - "traefik.http.routers.qbittorrent.rule=Host(`qbit.${DOMAIN}`)"
       - "traefik.http.routers.qbittorrent.entrypoints=websecure"
       - "traefik.http.routers.qbittorrent.tls=true"
-      - "traefik.http.routers.qbittorrent.tls.certresolver=letsencrypt"
       - "traefik.http.routers.qbittorrent.service=qbittorrent"
       - "traefik.http.services.qbittorrent.loadbalancer.server.port=13001"
       - "traefik.http.routers.qbittorrent.middlewares=security-headers@file"
@@ -56,7 +57,6 @@ services:
       - "traefik.http.routers.prowlarr.rule=Host(`prowlarr.${DOMAIN}`)"
       - "traefik.http.routers.prowlarr.entrypoints=websecure"
       - "traefik.http.routers.prowlarr.tls=true"
-      - "traefik.http.routers.prowlarr.tls.certresolver=letsencrypt"
       - "traefik.http.routers.prowlarr.service=prowlarr"
       - "traefik.http.services.prowlarr.loadbalancer.server.port=9696"
       - "traefik.http.routers.prowlarr.middlewares=security-headers@file"
@@ -91,7 +91,8 @@ services:
       - prowlarr_data:/config # Host path for configuration data:container path
     network_mode: "service:gluetun"
     depends_on:
-      - gluetun
+      gluetun:
+        condition: service_healthy
     restart: unless-stopped
 
 # Mediamanager stack
@@ -131,7 +132,6 @@ services:
       - "traefik.http.routers.mediamanager.rule=Host(`mediamanager.${DOMAIN}`)"
       - "traefik.http.routers.mediamanager.entrypoints=websecure"
       - "traefik.http.routers.mediamanager.tls=true"
-      - "traefik.http.routers.mediamanager.tls.certresolver=letsencrypt"
       - "traefik.http.services.mediamanager.loadbalancer.server.port=8000"
       - "traefik.http.routers.mediamanager.middlewares=security-headers@file"
 
