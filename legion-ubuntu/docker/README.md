@@ -20,7 +20,8 @@ All services accessible via `https://<service>.${DOMAIN}`:
 - `qbit` - qBittorrent downloads (Pocket ID auth)
 - `prowlarr` - Indexer management (Pocket ID auth)
 - `jellyfin` - Jellyfin media server (built-in auth, NVIDIA GPU accelerated)
-- `ollama` - Ollama LLM API (no auth, NVIDIA GPU accelerated, VPN-only Traefik access)
+- `ai` - Ollama LLM API (no auth, NVIDIA GPU accelerated, VPN-only Traefik access)
+- `chat` - Open WebUI chat interface for Ollama (built-in auth)
 - `sftp` - SFTPGo file transfer (Pocket ID auth, SFTP on port 2022)
 - `boxbox` - Web file manager (Pocket ID auth)
 - `arcane` - Docker management (built-in auth)
@@ -52,6 +53,7 @@ See individual directories for detailed setup:
 - `/arcane` - Docker management
 - `/jellyfin` - Jellyfin media server (NVIDIA hardware acceleration)
 - `/ollama` - Ollama LLM API (NVIDIA hardware acceleration)
+- `/openwebui` - Open WebUI chat interface for Ollama
 - `/plex` - Plex media server
 
 Notes:

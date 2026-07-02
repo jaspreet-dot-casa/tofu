@@ -23,7 +23,8 @@ Homelab Docker stack running on an Ubuntu server (legion-ubuntu). All services s
 | `vpnstack/`  | `qbit.glorzo.jaspreet.casa`            | tinyauth          | qBittorrent (VPN-routed) |
 | `vpnstack/`  | `prowlarr.glorzo.jaspreet.casa`        | tinyauth          | Indexer manager (VPN-routed) |
 | `jellyfin/`  | `jellyfin.glorzo.jaspreet.casa`        | built-in          | NVIDIA GPU accelerated |
-| `ollama/`    | `ollama.glorzo.jaspreet.casa`          | none (no tinyauth)| LLM API, NVIDIA GPU accelerated; unauthenticated by design for API/CLI use, relies on Traefik being VPN-only |
+| `ollama/`    | `ai.glorzo.jaspreet.casa`              | none (no tinyauth)| LLM API, NVIDIA GPU accelerated; unauthenticated by design for API/CLI use, relies on Traefik being VPN-only |
+| `openwebui/` | `chat.glorzo.jaspreet.casa`            | built-in          | Chat UI for Ollama; own login, no tinyauth |
 | `plex/`      | host network port 32400                | built-in          | Plex (host network, no Traefik) |
 | `immich/`    | `immich.glorzo.jaspreet.casa`          | built-in          | Photo management |
 | `sftpgo/`    | `sftp.glorzo.jaspreet.casa`            | tinyauth          | Web UI; SFTP on port 2022 |
@@ -99,6 +100,7 @@ networks:
 - TinyAuth is configured with `OAUTH_AUTO_REDIRECT=pocketid` — unauthenticated requests go straight to Pocket ID
 - Services that ship their own auth (Arcane, Jellyfin, Plex) do NOT use the tinyauth middleware
 - Ollama is also exposed without tinyauth (it's consumed as a raw API, and tinyauth's OIDC redirect breaks non-browser clients); it relies on Traefik only being reachable over VPN
+- Open WebUI is exposed without tinyauth too, relying on its own built-in login (same exemption pattern as jellyfin/arcane)
 
 ---
 
