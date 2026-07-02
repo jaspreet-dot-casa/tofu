@@ -29,6 +29,7 @@ compose-down:
 	cd glances && docker compose down
 	cd immich && docker compose down
 	cd jellyfin && docker compose down
+	cd ollama && docker compose down
 	cd plex && docker compose down
 	cd sftpgo && docker compose down
 	cd vpnstack && docker compose down
@@ -41,6 +42,7 @@ compose-up:
 	cd vpnstack && docker compose up -d
 	cd plex && docker compose up -d
 	cd jellyfin && docker compose up -d
+	cd ollama && docker compose up -d
 	cd glances && docker compose up -d
 	cd immich && docker compose up -d
 	cd boxbox && docker compose up -d
