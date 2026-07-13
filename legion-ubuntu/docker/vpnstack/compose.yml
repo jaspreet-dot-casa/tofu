@@ -98,7 +98,7 @@ services:
 # Mediamanager stack
   mediamanager:
     container_name: mediamanager_server
-    image: ghcr.io/tagpro/mediamanager/mediamanager:master
+    image: ghcr.io/tagpro/mediamanager/mediamanager:v0.1.0
     ports:
       - "13000:8000"
     environment:
