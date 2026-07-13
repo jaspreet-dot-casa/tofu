@@ -37,6 +37,7 @@ compose-up:
     cd ollama   && docker compose up -d
     cd openwebui && docker compose up -d
     cd glances  && docker compose up -d
+    cd gopodder && docker compose up -d
     cd immich   && docker compose up -d
     cd boxbox   && docker compose up -d
     cd dashboards && docker compose up -d
@@ -48,6 +49,7 @@ compose-down:
     cd boxbox     && docker compose down
     cd dashboards && docker compose down
     cd glances    && docker compose down
+    cd gopodder   && docker compose down
     cd immich     && docker compose down
     cd jellyfin   && docker compose down
     cd ollama     && docker compose down

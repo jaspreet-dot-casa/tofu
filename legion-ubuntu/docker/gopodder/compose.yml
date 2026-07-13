@@ -1,0 +1,44 @@
+services:
+  gopodder:
+    image: ghcr.io/cbrgm/gopodder:latest
+    container_name: gopodder
+    restart: unless-stopped
+    command: serve
+    networks:
+      - proxy
+    environment:
+      - TZ=${TZ}
+      - GOPODDER_LOG_LEVEL=${GOPODDER_LOG_LEVEL}
+      - GOPODDER_DB_BACKEND=sqlite
+      - GOPODDER_DB_PATH=/data/gopodder.db
+    volumes:
+      - ${GOPODDER_DATA_PATH}:/data
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=proxy"
+      - "traefik.http.routers.gopodder.rule=Host(`gopodder.${DOMAIN}`)"
+      - "traefik.http.routers.gopodder.entrypoints=websecure"
+      - "traefik.http.routers.gopodder.tls=true"
+      - "traefik.http.services.gopodder.loadbalancer.server.port=8080"
+
+  # Continuously replicates the SQLite WAL to a second physical disk.
+  # Restore with:
+  #   docker compose run --rm litestream restore -config /etc/litestream.yml /data/gopodder.db
+  litestream:
+    image: litestream/litestream:0.3.13
+    container_name: gopodder-litestream
+    restart: unless-stopped
+    depends_on:
+      - gopodder
+    command: replicate -config /etc/litestream.yml
+    environment:
+      - TZ=${TZ}
+    volumes:
+      - ${GOPODDER_DATA_PATH}:/data
+      - ${GOPODDER_BACKUP_PATH}:/backups
+      - ./litestream.yml:/etc/litestream.yml:ro
+
+networks:
+  proxy:
+    name: proxy
+    external: true

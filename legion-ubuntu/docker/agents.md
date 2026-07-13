@@ -27,6 +27,7 @@ Homelab Docker stack running on an Ubuntu server (legion-ubuntu). All services s
 | `openwebui/` | `chat.glorzo.jaspreet.casa`            | built-in          | Chat UI for Ollama; own login, no tinyauth |
 | `plex/`      | host network port 32400                | built-in          | Plex (host network, no Traefik) |
 | `immich/`    | `immich.glorzo.jaspreet.casa`          | built-in          | Photo management |
+| `gopodder/`  | `gopodder.glorzo.jaspreet.casa`        | built-in          | gPodder-compatible podcast sync server; local SQLite, Litestream-replicated |
 | `sftpgo/`    | `sftp.glorzo.jaspreet.casa`            | tinyauth          | Web UI; SFTP on port 2022 |
 | `glances/`   | `glances.glorzo.jaspreet.casa`         | tinyauth          | System monitoring |
 | `dashboards/`| `home.glorzo.jaspreet.casa`            | tinyauth          | Homepage dashboard |
