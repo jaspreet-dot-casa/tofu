@@ -20,6 +20,7 @@ Homelab Docker stack running on an Ubuntu server (legion-ubuntu). All services s
 | `proxy/`     | `auth.glorzo.jaspreet.casa`            | none (public)     | Pocket ID OIDC provider |
 | `proxy/`     | `tinyauth.glorzo.jaspreet.casa`        | none (self)       | TinyAuth UI |
 | `vpnstack/`  | `mediamanager.glorzo.jaspreet.casa`    | tinyauth          | Media manager (VPN-routed) |
+| `vpnstack/`  | `cine.glorzo.jaspreet.casa`            | built-in          | Media manager; intended MediaManager replacement. Shares gluetun's netns (all traffic VPN-only), so its port + Traefik router live on the gluetun service. SQLite + Litestream |
 | `vpnstack/`  | `qbit.glorzo.jaspreet.casa`            | tinyauth          | qBittorrent (VPN-routed) |
 | `vpnstack/`  | `prowlarr.glorzo.jaspreet.casa`        | tinyauth          | Indexer manager (VPN-routed) |
 | `jellyfin/`  | `jellyfin.glorzo.jaspreet.casa`        | built-in          | NVIDIA GPU accelerated |

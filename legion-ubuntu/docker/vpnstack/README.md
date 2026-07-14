@@ -75,7 +75,84 @@ Go to `http://localhost:13000` to access the MediaManager web UI.
 
 After deploying the proxy stack, services are accessible via:
 - MediaManager: `https://mediamanager.${DOMAIN}` (Pocket ID auth)
+- Cinephage: `https://cine.${DOMAIN}` (own login)
 - qBittorrent: `https://qbit.${DOMAIN}` (Pocket ID auth)
 - Prowlarr: `https://prowlarr.${DOMAIN}` (Pocket ID auth)
 
 Direct port access (`localhost:13000`, etc.) remains available as fallback.
+
+## Cinephage
+
+Intended replacement for MediaManager. It rolls the Radarr/Sonarr/Prowlarr/Bazarr
+roles into one process, so it needs neither Prowlarr nor Postgres — it has its own
+indexer engine and a local SQLite database. Both stacks currently run side by side;
+nothing is removed until Cinephage has proven itself.
+
+### Networking
+
+Cinephage runs with `network_mode: service:gluetun`, so **all** of its traffic —
+indexer searches, TMDB metadata, downloads — leaves over the VPN, and it loses network
+entirely if the tunnel drops. Because it shares gluetun's network namespace it has no
+interface of its own, which is why its published port (`13002:3000`) and its Traefik
+router both live on the **gluetun** service rather than on `cinephage`.
+
+Verify egress at any time — this must not print your home IP:
+
+```bash
+docker exec cinephage node -e "fetch('https://ipinfo.io/json').then(r=>r.json()).then(d=>console.log(d.ip,d.city,d.org))"
+```
+
+### Database and backups
+
+Live SQLite at `${CINEPHAGE_CONFIG_PATH}/data/cinephage.db` (on ssd2), with a
+`litestream` sidecar continuously replicating the WAL to `${CINEPHAGE_BACKUP_PATH}` on a
+**separate physical disk**. Same pattern as gopodder; config in `cinephage-litestream.yml`.
+
+Restore:
+
+```bash
+# Stop the writer first so nothing is holding the DB open.
+docker compose stop cinephage
+
+docker compose run --rm --no-deps cinephage-litestream \
+  restore -config /etc/litestream.yml -o /config/data/cinephage.db /config/data/cinephage.db
+
+docker compose up -d
+```
+
+### First run
+
+1. Open `https://cine.${DOMAIN}` and create the admin account.
+2. Settings → add a **TMDB API key** (free, from themoviedb.org). Metadata does not
+   work without it.
+3. Settings → Download Clients → add qBittorrent at `http://localhost:13001`. It is
+   `localhost` and not `gluetun` because both containers share gluetun's namespace.
+   Cinephage sees downloads at `/downloads`, the exact path qBittorrent reports, so no
+   remote path mapping is needed.
+4. Add root folders (below), then run a library scan.
+
+### Importing the existing library
+
+`/mnt/hdd1/media` is mounted at `/media` — the same tree Jellyfin serves — so Cinephage
+sees every library through one mount. That also means it can **hardlink** on import
+instead of copying: `/media/*` and `/downloads` are all on the same filesystem.
+
+Cinephage identifies existing files by reading TMDB/TVDB ids straight out of the folder
+name, which is exactly how MediaManager already named things (`[tmdbid-1668]`,
+`{tvdb-348545}`). Those match by direct id lookup; untagged folders (`Breaking Bad`,
+`127 Hours`) fall back to fuzzy title+year matching and may need a manual nudge under
+Library → Unmatched.
+
+Root folders to add:
+
+| Path                       | Type   | Notes                                     |
+|----------------------------|--------|-------------------------------------------|
+| `/media/movies`            | movie  | 243 hand-curated titles Jellyfin serves   |
+| `/media/tv`                | tv     | 27 shows Jellyfin serves                  |
+| `/media/mediamanager/movies` | movie | 83 titles MediaManager manages            |
+| `/media/mediamanager/tv`   | tv     | 25 shows MediaManager manages             |
+
+**Mark the two `mediamanager/*` folders read-only** while both stacks are live. A
+read-only root folder is catalogued but never written to, so the two apps cannot fight
+over the same files. Once MediaManager is retired, either clear the read-only flag or
+move that content into `/media/movies` and `/media/tv` and drop the folders.
