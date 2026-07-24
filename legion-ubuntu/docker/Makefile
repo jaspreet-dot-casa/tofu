@@ -35,6 +35,7 @@ compose-down:
 	cd plex && docker compose down
 	cd sftpgo && docker compose down
 	cd vpnstack && docker compose down
+	cd webhost && docker compose down
 	cd proxy && docker compose down
 
 .PHONY: compose-up
@@ -52,3 +53,4 @@ compose-up:
 	cd boxbox && docker compose up -d
 	cd dashboards && docker compose up -d
 	cd arcane && docker compose up -d
+	cd webhost && docker compose up -d

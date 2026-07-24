@@ -1,0 +1,47 @@
+services:
+  webhost:
+    image: caddy:alpine
+    container_name: webhost
+    restart: unless-stopped
+    env_file:
+      - .env
+    networks:
+      - proxy
+    environment:
+      - TZ=${TZ:-Australia/Melbourne}
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - ${SITE_PATH:-/home/tagpro/websites}:/srv:ro
+    security_opt:
+      - no-new-privileges:true
+    deploy:
+      resources:
+        limits:
+          memory: 128M
+        reservations:
+          memory: 16M
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:80/"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 5s
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=proxy"
+
+      - "traefik.http.services.webhost.loadbalancer.server.port=80"
+
+      - "traefik.http.routers.webhost.rule=Host(`web.${DOMAIN}`)"
+      - "traefik.http.routers.webhost.entrypoints=websecure"
+      - "traefik.http.routers.webhost.tls=true"
+      - "traefik.http.routers.webhost.service=webhost"
+
+      # Public site (no tinyauth). Security headers + gzip, same as other
+      # self-authed / public services in the stack.
+      - "traefik.http.routers.webhost.middlewares=security-headers@file,gzip@file"
+
+networks:
+  proxy:
+    name: proxy
+    external: true

@@ -35,6 +35,7 @@ Homelab Docker stack running on an Ubuntu server (legion-ubuntu). All services s
 | `dashboards/`| `dashboard.glorzo.jaspreet.casa`       | tinyauth          | Homarr dashboard |
 | `arcane/`    | `arcane.glorzo.jaspreet.casa`          | built-in          | Docker management UI |
 | `boxbox/`    | `boxbox.glorzo.jaspreet.casa`          | tinyauth          | Web file manager |
+| `webhost/`   | `web.glorzo.jaspreet.casa`             | none (public)     | Static site hosting; Caddy serves a host dir (`SITE_PATH`), directory browsing on |
 
 ---
 

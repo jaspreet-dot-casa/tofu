@@ -1,0 +1,20 @@
+# Caddy sits behind Traefik, which terminates TLS. So Caddy only ever
+# speaks plain HTTP on :80 — disable its own automatic HTTPS entirely.
+{
+	admin off
+	auto_https off
+}
+
+:80 {
+	root * /srv
+	encode gzip zstd
+
+	# `browse` renders a clickable file listing for any directory that
+	# has no index.html — drop a file in /srv and it's reachable instantly.
+	file_server browse
+
+	log {
+		output stdout
+		format console
+	}
+}
