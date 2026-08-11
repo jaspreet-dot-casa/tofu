@@ -8,35 +8,41 @@ minutes: 6
 courseChapter: reliability
 ---
 
-Any time the exam describes a system that checks its own work, there is a question about
-generator bias nearby.
+Any time the exam describes a system checking its own work, there is a question about generator
+bias nearby.
 
 ## Generator bias
 
 ::: key-fact An instance cannot reliably review its own output
-Reviewing output it produced, a model still holds the reasoning that produced the mistake.
-The flawed step looks correct in the context that generated it. Independent review means a
-**separate instance without the generator's context** — not the same conversation asked to
-double-check.
+When a model reviews work it produced, it still holds the reasoning that produced the mistake.
+The flawed step looks correct from inside the thinking that created it.
+
+Independent review means a **separate instance with none of the writer's context**. Not the
+same conversation asked to double-check.
 :::
 
-"Ask Claude to review its answer before responding" is a distractor. It catches formatting
+It is the same reason you cannot proofread your own writing well. You read what you meant, not
+what is on the page.
+
+"Ask Claude to review its answer before responding" is a wrong answer. It catches formatting
 slips and little else.
 
 ## Splitting the passes
 
-For anything larger than a single file, one review pass is the wrong shape. Two levels:
+For anything bigger than a single file, one review pass is the wrong shape. You want two
+levels:
 
-1. **Per-unit passes** — one focused review per file, per document, per record. Full
-   attention on a small amount of material. Catches local defects.
-2. **A cross-unit pass** — one review over the whole set, or over the summaries. Catches
-   integration defects that no single unit exposes: a renamed function whose callers were not
-   updated, a schema change that breaks a consumer.
+1. **One pass per unit** — one focused review per file, per document, per record. Full
+   attention on a small amount of material. Catches local problems.
+2. **One pass across units** — one review over the whole set, or over the summaries. Catches
+   problems that only show up between units: a renamed function whose callers were not
+   updated, a schema change that breaks something downstream.
 
-::: exam-tip Neither pass substitutes for the other
-A single whole-diff review misses local detail because attention is spread thin. A set of
-per-file reviews misses integration issues because no reviewer saw two files at once. A
-question describing "the reviewer caught the style problems but missed that the API contract
+::: exam-tip Neither pass can replace the other
+One whole-diff review misses local detail, because attention is spread too thin. A set of
+per-file reviews misses integration problems, because no reviewer ever saw two files at once.
+
+A question describing "the reviewer caught the style problems but missed that the API contract
 changed" is describing per-file passes with no cross-file pass.
 :::
 
@@ -53,7 +59,7 @@ For a code-review pipeline:
               ▼            ▼            ▼
         ╭──────────╮ ╭──────────╮ ╭──────────╮
         │ review A │ │ review B │ │ review C │  ← independent sessions,
-        ╰─────┬────╯ ╰─────┬────╯ ╰─────┬────╯    no generator context
+        ╰─────┬────╯ ╰─────┬────╯ ╰─────┬────╯    no writer's context
               ╰────────────┼────────────╯
                            ▼
                   ╭─────────────────╮
@@ -63,18 +69,22 @@ For a code-review pipeline:
                   structured findings
 ```
 
-Each reviewer returns schema-valid findings; the aggregate is what the pipeline acts on.
+Each reviewer returns findings that match a schema. The combined set is what the pipeline acts
+on.
 
 ## Voting, when one pass is not enough
 
-Where a single judgement is unreliable and the cost of missing something is high, run the
-same review several times independently and aggregate — flag anything two of three reviewers
-agree on. This is the voting flavour of parallelisation from Domain 1.
+Where a single judgement is unreliable and missing something would be expensive, run the same
+review several times independently and compare. Flag anything two out of three reviewers agree
+on.
 
-It is worth paying for on security review and rarely worth it on style.
+This is the voting flavour of parallelisation from Domain 1.
 
-## Prompt chaining for the generation side
+Worth paying for on security review. Rarely worth it on style.
 
-The same decomposition applies to producing work, not only checking it: Extract → Validate →
-Enrich → Format, with a gate at each boundary. Each step gets a prompt written for one job,
-and a failure tells you exactly which stage broke.
+## The same idea when producing work
+
+This decomposition is not just for checking. It applies to producing too: Extract → Validate →
+Enrich → Format, with a check at each boundary.
+
+Each step gets a prompt written for one job, and a failure tells you exactly which step broke.

@@ -8,63 +8,73 @@ minutes: 5
 courseChapter: reliability
 ---
 
-The Message Batches API is a straightforward cost lever with a single, absolute constraint.
-The exam tests whether you know where the constraint bites.
+The Message Batches API halves your cost. In exchange, you give up any promise about when the
+results arrive.
+
+That is the whole trade. The exam tests whether you know where it hurts.
 
 ## The trade
 
 | | Batch | Real-time |
 |---|---|---|
 | Cost | **50% cheaper** | Standard |
-| Processing | Up to **24 hours** | Seconds |
-| Latency SLA | **None** | Yes |
+| Processing time | Up to **24 hours** | Seconds |
+| Latency SLA (a promise about speed) | **None** | Yes |
 | Multi-turn | No | Yes |
 | Streaming | No | Yes |
 
-Half price is a large saving at volume. No SLA is a large constraint anywhere a person is
+Half price is a big saving at volume. No speed promise is a big problem anywhere a person is
 waiting.
 
 ## When Batch is right
 
 - Overnight reporting.
 - Weekly audits and compliance sweeps.
-- Bulk reprocessing of an archive.
+- Reprocessing an archive in bulk.
 - Backfilling a dataset.
-- Any job whose result is consumed by a schedule rather than a person.
+- Any job whose results are picked up by a schedule, not a person.
 
-Use the `custom_id` field on each request to correlate results back to your records — batch
-results are not guaranteed to come back in submission order.
+Use the `custom_id` field on each request to match results back to your records. Batch results
+are not guaranteed to come back in the order you sent them.
 
 ## When Batch is wrong
 
-::: trap Never use Batch in a blocking workflow
-If a user, a request, or a pipeline stage is waiting on the result, Batch is the wrong
-answer — full stop. "Up to 24 hours" is not a worst case you can engineer around with a
-generous timeout; there is no latency guarantee at all. A support agent, an interactive
-extraction, a PR check that gates a merge: all real-time.
+::: trap Never use Batch when something is waiting on the result
+If a user, a request, or a pipeline stage is blocked waiting, Batch is the wrong answer. Full
+stop.
+
+"Up to 24 hours" is not a worst case you can plan around with a generous timeout. There is no
+latency SLA at all — no promise about speed, of any kind.
+
+A support agent, an interactive extraction, a PR check that gates a merge: all real-time.
 :::
 
-This is one of the seven anti-patterns, and it appears in the extraction scenario as an
-attractive distractor: the scenario mentions cost pressure, Batch halves the cost, and the
-option reads as sensible right up until you notice a user is waiting.
+This is one of the seven anti-patterns. It turns up in the extraction scenario as a very
+tempting wrong answer: the situation mentions cost pressure, Batch halves the cost, and the
+option reads perfectly sensibly — right up until you notice a user is waiting.
 
 ## Reading the question
 
-The signal is always in who consumes the output and when:
+The signal is always who is waiting for the output, and when:
 
-| The scenario says | Choose |
+| The question says | Choose |
 |---|---|
 | "Nightly", "weekly report", "backfill", "archive" | Batch |
-| "The user sees", "the pipeline blocks on", "response time" | Real-time |
+| "The user sees", "the pipeline waits for", "response time" | Real-time |
 | "Cost is a concern" *and* nothing is waiting | Batch |
-| "Cost is a concern" *and* something is waiting | Real-time, then optimise with caching and routing |
+| "Cost is a concern" *and* something is waiting | Real-time, then cut cost with caching and routing |
 
-That last row matters. When cost pressure meets a latency requirement, the levers are
-**prompt caching** for the repeated prefix and **routing** cheap queries to a smaller model —
-not moving an interactive workload to Batch.
+That last row matters.
 
-::: exam-tip Batch and streaming are alternatives, not complements
-For very long single requests, streaming keeps the connection alive and avoids idle timeouts.
-For high volume without deadlines, Batch. A question describing a ten-minute-plus job usually
-wants one of those two, and which one depends entirely on whether anyone is waiting.
+When cost pressure meets a speed requirement, your levers are **prompt caching** for the
+repeated part of the prompt, and **routing** simple queries to a cheaper model. Not moving an
+interactive workload to Batch.
+
+::: exam-tip Batch and streaming solve different problems
+For one very long request, streaming keeps the connection alive and avoids timeouts.
+
+For high volume with no deadline, Batch.
+
+A question describing a job over ten minutes usually wants one of the two — and which one
+depends entirely on whether anyone is waiting.
 :::

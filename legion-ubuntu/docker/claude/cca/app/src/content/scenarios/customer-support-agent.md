@@ -1,43 +1,45 @@
 ## The brief
 
-A support agent handles returns, billing and account issues, targeting 80%+ first-contact
-resolution. It must resolve confidently where policy is clear, and hand off cleanly where it
-is not.
+A support agent handles returns, billing and account issues, aiming to resolve 80%+ of cases
+on first contact. It should act confidently where the policy is clear, and hand over cleanly
+where it is not.
 
 ## The architecture
 
-A **single agent**, not a multi-agent system. The work is sequential, shares one evolving
-conversation, and fits comfortably in one context. A coordinator delegating to
-"returns agent", "billing agent" and "account agent" is the over-engineering the *start
-simple* rule exists to prevent — and it would fragment exactly the conversational state that
-makes the agent useful.
+A **single agent**, not a multi-agent system.
 
-Tools, scoped tightly:
+The work happens in order, it shares one running conversation, and it fits comfortably in one
+context window. A coordinator handing off to a "returns agent", a "billing agent" and an
+"account agent" is exactly the over-engineering that the *start simple* rule exists to prevent.
+It would also break apart the conversation state that makes the agent useful in the first
+place.
+
+Tools, kept tight:
 
 | Tool | Purpose |
 |---|---|
 | `search_orders` | Order history by email, reference or date |
 | `check_refund_policy` | Applies current policy to a specific order |
-| `issue_refund` | The only mutating tool — gated |
-| `escalate_to_human` | Structured handoff |
+| `issue_refund` | The only tool that changes anything — gated |
+| `escalate_to_human` | Structured handover |
 
-Four tools, comfortably inside the range where routing stays accurate.
+Four tools. Comfortably inside the range where the model picks accurately.
 
 ## The escalation rules
 
-This is what the scenario is really about.
+This is what the scenario is really testing.
 
 ::: key-fact Escalate on
-Explicit request for a human · ambiguous policy · no progress after several attempts ·
-irreversible or high-value actions.
+The customer asks for a human · the policy is unclear · nothing has worked after several
+attempts · the action cannot be undone or is high-value.
 :::
 
 ::: trap Do not escalate on
-Customer frustration alone · a low self-reported confidence score · a task that is merely
-complicated when the policy is clear.
+The customer being annoyed · the model saying it is not confident · a task that is just
+complicated when the policy is actually clear.
 :::
 
-Escalation must be a **deterministic rule in code**, evaluated against facts the system owns:
+Escalation has to be a **fixed rule in code**, checked against facts your system owns:
 
 ```text
 refund_amount > 500                    → escalate
@@ -47,16 +49,16 @@ customer typed "speak to a human"      → escalate
 sentiment == "angry"                   → do NOT escalate on this alone
 ```
 
-Asking the model "how confident are you?" and thresholding on the answer is the anti-pattern.
-Self-reported confidence is poorly calibrated and fails on precisely the cases you need to
-catch.
+Asking the model "how confident are you?" and escalating on a low number is the anti-pattern.
+Models are bad at judging their own confidence, and they fail exactly on the cases you needed
+to catch.
 
-## Context across a long conversation
+## Context in a long conversation
 
-Twenty turns in, the order number from turn 2 is deep in the middle of the context — the
-worst place for it.
+Twenty turns in, the order number from turn 2 is buried in the middle of the context — the
+worst possible place for it.
 
-The fix is a **structured case-facts block, maintained at the top of the prompt**:
+The fix is a **structured block of case facts, kept at the top of the prompt**:
 
 ```json
 {
@@ -69,36 +71,38 @@ The fix is a **structured case-facts block, maintained at the top of the prompt*
 }
 ```
 
-Facts get extracted into it as they are established, and it is re-injected at the top of every
-request. Now the critical data is in the highest-attention region and no longer depends on the
-model recalling turn 2.
+Facts get added to it as they are established, and it is re-inserted at the top of every
+request. Now the critical data sits where attention is strongest, and nothing depends on the
+model remembering turn 2.
 
-Trim verbose tool output as you go. A full order payload with 40 fields, repeated across ten
+Trim bulky tool output as you go, too. A full order payload with 40 fields, repeated across ten
 turns, is most of your window spent on data nobody needed twice.
 
 ## Sessions
 
 The customer calls back tomorrow: **resume**. Same thread, full history, continuity intact.
 
-Exploring two possible resolutions without contaminating the real conversation: **fork**.
-Nothing in the fork returns to the parent.
+Trying out two possible resolutions without messing up the real conversation: **fork**. Nothing
+in the fork goes back to the parent.
 
 ## Cost
 
-Long policy documents in the system prompt, many requests against them, within a short
-window — this is the textbook **prompt caching** case. Cache the policy block, put the
-per-customer content after the breakpoint.
+A long policy document in the system prompt, many requests against it, all within a short
+window. That is the textbook **prompt caching** case.
+
+Cache the policy block. Put the per-customer content after the breakpoint.
 
 ::: trap Never Batch here
-A customer is waiting. Batch has no latency guarantee and can take up to 24 hours. Cost
-pressure in an interactive workflow is solved by caching and by routing simple queries to a
-cheaper model, never by Batch.
+A customer is waiting. Batch gives no promise about timing and can take up to 24 hours.
+
+Cost pressure in an interactive workflow is solved by caching, and by routing simple queries to
+a cheaper model. Never by Batch.
 :::
 
 ## What the exam will ask
 
 - Which signal legitimately triggers escalation — and which one is the trap
-- Why the confidence score is the wrong gate, and what replaces it
+- Why the confidence score is the wrong trigger, and what replaces it
 - Where the order number should live after twenty turns
 - Resume versus fork
 - Why not multi-agent

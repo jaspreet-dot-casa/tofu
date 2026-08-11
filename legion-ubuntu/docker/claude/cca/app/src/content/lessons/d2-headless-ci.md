@@ -8,9 +8,11 @@ minutes: 7
 courseChapter: ci-cd
 ---
 
-Running Claude Code in a pipeline has three requirements a terminal session does not: it must
-never wait for input, its output must be machine-readable, and it must behave the same way on
-every run.
+Running Claude Code in a pipeline has three requirements that a terminal session does not:
+
+1. It must never wait for input, because nobody is there to type.
+2. Its output must be readable by a machine.
+3. It must behave the same way every run.
 
 ## The flags
 
@@ -27,49 +29,56 @@ claude -p "Review the staged diff against our checklist" \
 |---|---|
 | `-p` / `--print` | Non-interactive. Without it the process waits for input and the job hangs. |
 | `--output-format` | `text`, `json` or `stream-json`. `json` adds `result`, `session_id`, `total_cost_usd` and metadata. |
-| `--json-schema <path>` | Validates the output against a schema so the pipeline can branch on it safely. |
-| `--allowedTools` / `--disallowedTools` | Least privilege, using permission-rule syntax. |
-| `--permission-mode dontAsk` | Fails closed instead of prompting. |
-| `--max-turns` | Bounds the run. |
+| `--json-schema <path>` | Checks the output against a schema so the pipeline can branch on it safely. |
+| `--allowedTools` / `--disallowedTools` | Only the tools the job needs, using permission-rule syntax. |
+| `--permission-mode dontAsk` | Refuses instead of asking. |
+| `--max-turns` | Puts a limit on the run. |
 | `--append-system-prompt` | Job-specific instructions without editing committed config. |
-| `--bare` | Skips auto-discovery of hooks, skills, plugins, MCP, auto memory and `CLAUDE.md`. |
+| `--bare` | Skips auto-loading of hooks, skills, plugins, MCP, auto memory and `CLAUDE.md`. |
 
-::: key-fact --bare is the reproducibility flag
-It makes a run depend only on what you passed it, rather than on whatever configuration
-happens to exist on the runner. That is what you want in CI, and it also starts faster. If a
-question describes CI results that differ between machines, missing `--bare` is a good
+::: key-fact --bare is what makes a run repeatable
+With it, the run depends only on what you passed in — not on whatever configuration happens to
+exist on that particular runner. That is what you want in CI, and it starts faster too.
+
+If a question describes CI results that differ between machines, a missing `--bare` is a good
 suspect.
 :::
 
 ::: trap --dangerously-skip-permissions in a pipeline
-It is the equivalent of `bypassPermissions`. Unless the scenario says the job runs in an
-isolated container, the intended answer is `dontAsk` with an explicit `--allowedTools` list.
+It is the same as `bypassPermissions`.
+
+Unless the question says the job runs in an isolated container, the intended answer is
+`dontAsk` with an explicit `--allowedTools` list.
 :::
 
-## Session isolation
+## One session per job
 
-Each pipeline job should get a fresh session. Sharing a session between PR reviews leaks one
-PR's context into the next one's review, which produces confident, wrong, cross-contaminated
-feedback. Use `--resume` deliberately within a job if you need continuity, never across jobs.
+Every pipeline job should get a fresh session.
+
+Sharing a session between PR reviews leaks one PR's context into the next one's review. You
+get confident, wrong feedback about the wrong code.
+
+Use `--resume` on purpose within a job if you need continuity. Never across jobs.
 
 ## Independent review
 
-::: key-fact The generator must not review its own work
-An instance reviewing output it produced still carries the reasoning that produced the
-mistake, and reliably fails to see it. This is generator bias. Automated review must run in a
-**separate session without the generator's context**.
+::: key-fact Whatever wrote the code must not review it
+An instance reviewing its own output still holds the reasoning that produced the mistake — so
+the mistake still looks correct to it. This is called generator bias.
+
+Automated review has to run in a **separate session with none of the writer's context**.
 :::
 
-The pattern that follows from this, for a code review pipeline:
+That leads directly to the review pattern for a code-review pipeline:
 
-1. **Per-file passes** — one focused review per file, catching local issues without the
-   context of the whole diff diluting attention.
-2. **One cross-file pass** — catching the integration issues no single file shows.
-3. **Aggregate** into structured output the pipeline can act on.
+1. **One pass per file** — a focused review of each file on its own, catching local problems
+   without the whole diff diluting attention.
+2. **One pass across files** — catching the integration problems that no single file shows.
+3. **Combine** into structured output the pipeline can act on.
 
 ## Structured output for pipelines
 
-Free text is not actionable. Ask for a schema and validate it:
+Free text is not actionable. Ask for a schema and check it:
 
 ```json
 {
@@ -85,12 +94,13 @@ Free text is not actionable. Ask for a schema and validate it:
 }
 ```
 
-With that, the job can fail the build on any `high`, post the findings as review comments,
-and stay silent when the array is empty. With prose, it can only paste a blob into a comment
-and hope somebody reads it.
+With that, the job can fail the build on any `high`, post the findings as review comments, and
+stay quiet when the array is empty.
 
-::: exam-tip Combine the guarantees
-A CI question's best answer usually stacks several mechanisms: `-p` so it does not hang,
-`--bare` so it is reproducible, `dontAsk` plus `--allowedTools` so it is scoped, a schema so
-the output is parseable, and a separate session so the review is honest.
+With prose, all it can do is paste a blob into a comment and hope somebody reads it.
+
+::: exam-tip Stack the guarantees
+The best answer to a CI question usually combines several mechanisms at once: `-p` so it does
+not hang, `--bare` so it is repeatable, `dontAsk` plus `--allowedTools` so it is limited, a
+schema so the output is parseable, and a separate session so the review is honest.
 :::

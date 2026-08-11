@@ -8,72 +8,80 @@ minutes: 6
 courseChapter: cc-config
 ---
 
-Permission modes set the baseline autonomy for a session. The exam asks which one fits a
-described situation, so learn what each permits rather than just its name.
+A permission mode sets how much Claude Code is allowed to do on its own during a session.
+
+The exam gives you a situation and asks which mode fits. So learn what each one actually
+allows, not just its name.
 
 ## The modes
 
-| Mode | Permits |
+| Mode | Allows |
 |---|---|
-| `default` | Reads only; everything else prompts |
-| `acceptEdits` | Auto-approves file edits plus common in-scope filesystem commands (`mkdir`, `touch`, `rm`, `mv`, `cp`, `sed`) |
-| `plan` | Read-only research, then presents a plan for approval before any edits |
-| `auto` | Classifier-gated autonomy (research preview) |
-| `dontAsk` | Only pre-approved `allow` rules and read-only commands; **everything else is denied** rather than prompted |
+| `default` | Reads only; everything else asks first |
+| `acceptEdits` | Auto-approves file edits plus common filesystem commands (`mkdir`, `touch`, `rm`, `mv`, `cp`, `sed`) |
+| `plan` | Read-only research, then shows you a plan to approve before any edits |
+| `auto` | Autonomy decided by a classifier (research preview) |
+| `dontAsk` | Only pre-approved `allow` rules and read-only commands; **everything else is refused** rather than asked about |
 | `bypassPermissions` | Skips permission checks entirely |
 
-::: key-fact dontAsk denies, it does not prompt
-This is the distinction that makes `dontAsk` the right answer for CI. In a pipeline there is
-nobody to answer a prompt, so a mode that *asks* would hang. `dontAsk` fails closed:
-anything not explicitly allowed is refused, and the run continues or fails deterministically.
+::: key-fact dontAsk refuses, it does not ask
+This is what makes `dontAsk` the right answer for CI.
+
+In a pipeline there is nobody there to answer a prompt, so a mode that *asks* would just hang
+forever. `dontAsk` fails safely: anything not explicitly allowed is refused, and the run
+either continues or fails in a predictable way.
 :::
 
 ::: trap bypassPermissions in a pipeline
-`--dangerously-skip-permissions` is the CLI equivalent, and the name is the hint. It is for
-isolated containers and disposable VMs. Unless a scenario explicitly says the run is
+`--dangerously-skip-permissions` is the CLI version, and the name is the clue.
+
+It is for throwaway containers and isolated VMs. Unless a question explicitly says the run is
 sandboxed, the safe CI answer is `dontAsk` plus an explicit `--allowedTools` list — not
 bypass.
 :::
 
-Remember from the previous lesson: even in `bypassPermissions`, `deny` rules and explicit
-`ask` rules still apply, and protected paths are still protected.
+Remember from the last lesson: even in `bypassPermissions`, `deny` rules and explicit `ask`
+rules still apply, and protected paths are still protected.
 
 ## Plan mode
 
-Plan mode makes Claude research read-only, then present a plan you approve before anything
-is written.
+Plan mode makes Claude research without changing anything, then show you a plan you approve
+before anything gets written.
 
 **Use plan mode when:**
 
-- the change spans multiple files;
-- there are several defensible approaches and picking wrong is expensive;
-- the codebase is unfamiliar;
-- the refactor has cross-cutting concerns.
+- the change spans several files;
+- there are a few reasonable approaches and picking the wrong one is expensive;
+- you do not know the codebase;
+- the refactor touches things all over the place.
 
-**Use direct execution when:**
+**Just let it work when:**
 
-- it is a single-file fix;
+- it is a one-file fix;
 - there is a clear stack trace pointing at the cause;
-- the path is obvious;
-- speed matters more than the review step.
+- the fix is obvious;
+- speed matters more than a review step.
 
-::: exam-tip The plan-mode question is about cost of being wrong
-Plan mode buys a checkpoint before work happens. That is worth a round trip when a wrong
-approach means undoing changes across ten files, and it is dead weight when the fix is a
-typo. Scenario stems mentioning "unfamiliar codebase", "several possible approaches" or
-"large refactor" are pointing at plan mode.
+::: exam-tip Plan mode is about the cost of being wrong
+Plan mode buys you a checkpoint before any work happens.
+
+That is worth an extra round trip when a wrong approach means undoing changes across ten
+files. It is dead weight when the fix is a typo.
+
+Questions mentioning "unfamiliar codebase", "several possible approaches" or "large refactor"
+are pointing at plan mode.
 :::
 
-## Autonomy is layered
+## Autonomy comes in layers
 
-Modes are one control among several, and a well-designed system uses more than one:
+The mode is one control among several. A well-built system uses more than one:
 
 - **Permission mode** sets the baseline.
-- **`allow` / `deny` / `ask` rules** carve out specifics — and merge across scopes.
-- **Hooks** apply dynamic judgement and can rewrite or block individual calls.
-- **`max_turns` and `max_budget_usd`** bound the run itself.
+- **`allow` / `deny` / `ask` rules** carve out specifics — and they combine across levels.
+- **Hooks** make judgement calls at the time, and can rewrite or block individual calls.
+- **`max_turns` and `max_budget_usd`** limit the run itself.
 - **Human approval checkpoints** gate the genuinely high-stakes steps.
 
-A question describing an agent that must be autonomous for routine work but must never
-deploy without sign-off is describing this layering: permissive mode, explicit deny or a
-hook on the deployment path.
+A question describing an agent that should work freely on routine tasks but must never deploy
+without sign-off is describing exactly this layering: a permissive mode, plus an explicit deny
+or a hook on the deployment path.

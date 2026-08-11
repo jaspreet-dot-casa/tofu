@@ -1,13 +1,12 @@
 ## The brief
 
-A team rolls Claude Code out across a shared repository. Everyone should inherit the same
-standards, everyone should get the same commands, and certain things must never happen by
+A team rolls Claude Code out across a shared repository. Everyone should get the same
+standards, everyone should get the same commands, and some things must never happen by
 accident.
 
 ## Where each thing lives
 
-This scenario is a configuration-placement exam in disguise. The question is always *which
-file*.
+This scenario is a "which file does it go in" exam wearing a disguise.
 
 | Requirement | Goes in |
 |---|---|
@@ -18,16 +17,17 @@ file*.
 | Team-wide MCP servers | `.mcp.json` at the repo root — committed |
 | A personal API token | environment variable, referenced as `${TOKEN}` |
 | Something that must **always** run | a **hook** |
-| Something that must **never** be permitted | a `permissions.deny` rule |
+| Something that must **never** be allowed | a `permissions.deny` rule |
 
 ::: key-fact The commit test
-"Should the whole team get this?" is the same question as "is this file in version control?".
-User-level configuration cannot be a team standard, however sensible its contents.
+"Should the whole team get this?" is the same question as "is this file in version control?"
+
+User-level configuration cannot be a team standard, no matter how sensible its contents.
 :::
 
-## Guidance versus enforcement
+## Advice versus enforcement
 
-The pivotal distinction.
+This is the key distinction.
 
 `CLAUDE.md` says *"always run the formatter after editing"*. Claude will usually do it. On the
 run where it does not, nothing tells you.
@@ -45,23 +45,30 @@ A `PostToolUse` hook on `Edit` runs the formatter every time, because it is code
 ```
 
 ::: trap Exit 1 does not block
-For a `PreToolUse` validator, only exit code **2** blocks the operation and feeds stderr back
-to Claude. Exit 0 succeeds (stdout parsed as JSON for structured control), and any other
-non-zero — including 1 — is a non-blocking error that lets the operation proceed.
+For a `PreToolUse` validator, only exit code **2** blocks the operation and sends stderr back
+to Claude.
+
+Exit 0 means success (stdout is read as JSON for structured control). Any other non-zero
+code — including 1 — is a non-blocking error, and the operation goes ahead anyway.
 :::
 
 ## Permissions
 
-Merge, do not override. A `deny` at any scope stands, and no `allow` elsewhere removes it.
+They combine; they do not replace each other. A `deny` at any level stands, and no `allow`
+somewhere else removes it.
+
 Protected paths (`.git`, `.claude`, `.mcp.json`, `.claude.json`, shell rc files) are never
-auto-approved outside `bypassPermissions` — because those are exactly the files that could be
-used to disarm the permission system.
+auto-approved outside `bypassPermissions` — because those are exactly the files you would edit
+to switch the permission system off.
 
 ## Plan mode
 
-Use it for multi-file changes, unfamiliar areas, refactors with cross-cutting concerns, and
-anywhere several approaches are defensible. Skip it for single-file fixes with a clear stack
-trace. The criterion is the cost of taking the wrong approach, not the size of the task.
+Use it for changes across several files, unfamiliar areas, refactors that touch a lot, and
+anywhere more than one approach is reasonable.
+
+Skip it for one-file fixes with a clear stack trace.
+
+The test is the cost of taking the wrong approach — not the size of the task.
 
 ## Custom commands
 
@@ -75,14 +82,14 @@ context: fork
 Review this diff: !`git diff --staged`
 ```
 
-Points the exam cares about: `description` is what Claude matches on; `allowed-tools`
-is least privilege; `context: fork` keeps noisy output out of the main conversation; and
-`` !`command` `` executes on every invocation.
+What the exam cares about here: `description` is what Claude matches on; `allowed-tools` keeps
+privilege low; `context: fork` keeps noisy output out of the main conversation; and
+`` !`command` `` runs on every single invocation.
 
 ## What the exam will ask
 
 - Which file makes a standard apply to the whole team
 - Why `CLAUDE.md` cannot guarantee a formatter runs
 - Which hook exit code actually blocks
-- When plan mode is worth the round trip
+- When plan mode is worth the extra round trip
 - Why an `allow` rule cannot open a protected path

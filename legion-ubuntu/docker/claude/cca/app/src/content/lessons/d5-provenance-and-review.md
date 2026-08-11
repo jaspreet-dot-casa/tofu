@@ -8,76 +8,82 @@ minutes: 6
 courseChapter: reliability
 ---
 
-The last piece of reliability is knowing what your system actually got right — which is
-harder than it sounds, and is where the knowledge-base and extraction scenarios live.
+The last piece of reliability is knowing what your system actually got right. That is harder
+than it sounds, and it is where the knowledge-base and extraction scenarios live.
 
-## Information provenance
+## Where each claim came from
 
-For any system that makes factual claims from sources, require a claim-to-source mapping on
-every claim:
+Any system that states facts drawn from sources should attach four things to every claim:
 
 - the **source** — URL, document name;
-- the **excerpt** the claim rests on;
-- the **date**, so recency can be judged;
-- the **kind of claim** — direct quote, paraphrase, or inference.
+- the **exact text** the claim rests on;
+- the **date**, so someone can judge how current it is;
+- the **kind of claim** — a direct quote, a paraphrase, or an inference.
 
-That last distinction matters more than it looks. An inference presented with the same
-confidence as a quote is how a system produces something defensible-looking that the source
-never said.
+That last one matters more than it looks.
 
-::: key-fact Conflicting sources get both attributions
-When two sources disagree, the right output is not to pick one silently. Annotate the
-conflict with both attributions and let the reader see it. Silent resolution destroys the
-information that there was a disagreement at all.
+An inference presented with the same confidence as a quote is how a system produces something
+official-looking that the source never actually said.
+
+::: key-fact When sources disagree, show both
+The right output is not to quietly pick one. Note the disagreement and attribute both.
+
+Resolving it silently destroys the most useful piece of information — that there was a
+disagreement at all.
 :::
 
-## Aggregate accuracy hides failures
+## An overall accuracy number can hide a broken field
 
-::: trap 97% overall accuracy can conceal a field that is broken
-If one document type is 8% of the corpus and its date field fails 60% of the time, the
-aggregate barely moves. The headline number says the system works. It does not, for that
-type.
+::: trap 97% overall accuracy can hide a field that is completely broken
+Suppose one document type is 8% of your corpus, and its date field is wrong 60% of the time.
+
+The overall number barely moves. The headline says the system works. It does not — not for that
+document type.
 :::
 
-The fix is **stratified random sampling** — sample by document type *and* by field, not
-uniformly across everything. Set quality thresholds per field and per document type rather
-than one global target.
+The fix is **stratified sampling**: sample by document type *and* by field, rather than
+uniformly across everything.
 
-## Routing to humans
+Set quality targets per field and per document type, not one global target.
 
-Two complementary routes:
+## Sending work to humans
 
-1. **Confidence-based** — but as established in Domain 1, not the model's self-reported
-   confidence. Use signals your system owns: the schema returned `"unclear"`, validation
-   failed after retries, a required field came back null, the value fell outside an expected
-   range, two extraction passes disagreed.
-2. **Sampling-based** — a stratified sample of *everything*, including the records the system
-   was sure about. This is how you discover the failure mode nobody flagged.
+Two routes, and you need both:
+
+1. **By exception** — but, as Domain 1 established, not based on the model's own confidence.
+   Use signals your system actually owns: the schema came back `"unclear"`, validation failed
+   after retries, a required field was null, a value fell outside the expected range, two
+   extraction passes disagreed.
+2. **By sampling** — a stratified sample of *everything*, including the records the system was
+   confident about. This is how you find the failure nobody flagged.
 
 ::: key-fact Both routes are necessary
-Exception-based review only ever inspects what the system already knew was doubtful, so it
-cannot find confident errors. Sampling catches those. A question offering only one of the two
-is offering half an answer.
+Exception-based review only ever looks at what the system already suspected. So it cannot find
+confident mistakes.
+
+Sampling catches those. A question offering only one of the two routes is offering half an
+answer.
 :::
 
 ## The calibration check
 
-The fifth mental model, and a good closing thought for the domain:
+The fifth mental model, and a good note to end the domain on:
 
-> Is any part of this design relying on Claude's assessment of its own output?
+> Is any part of this design relying on Claude's judgement of its own output?
 
-If yes, replace it with something external: a schema check, a deterministic threshold, an
-independent reviewer instance, a human sample. Self-assessment feels like a signal and is not
-one.
+If yes, replace it with something external: a schema check, a fixed threshold, a separate
+reviewer instance, a human sample.
 
-## Putting the domain together
+Self-assessment feels like a signal. It is not one.
 
-A reliable system, in one list:
+## The domain in one list
 
-- Structured errors that distinguish transient from permanent, and empty from failed.
-- Retries only where retrying can help, with backoff and a cap.
-- Checkpoints so a crash resumes rather than restarts.
-- Context curated deliberately — trimmed, compacted, offloaded, or retrieved.
-- Provenance attached to every claim.
-- Degradation reported, never silent.
-- Quality measured by stratified sample, not aggregate.
+A reliable system:
+
+- Structured errors that separate temporary from permanent, and empty from failed.
+- Retries only where retrying could help, with backoff and a cap.
+- Checkpoints, so a crash resumes rather than restarts.
+- Context chosen deliberately — trimmed, compacted, offloaded, or retrieved.
+- A source attached to every claim.
+- Degradation always reported, never silent.
+- Quality measured by stratified sample, not by one overall number.

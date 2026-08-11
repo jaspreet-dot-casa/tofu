@@ -8,8 +8,11 @@ minutes: 7
 courseChapter: mcp
 ---
 
-The Model Context Protocol is how tools get to Claude from outside your own application code.
-The exam tests the architecture precisely rather than conceptually.
+The Model Context Protocol (MCP) is the standard way to give Claude tools that live outside
+your own application code.
+
+The exam tests the architecture precisely, not vaguely. Learn the pieces and what connects to
+what.
 
 ## Host, client, server
 
@@ -27,45 +30,47 @@ The exam tests the architecture precisely rather than conceptually.
     ╰────────────╯      ╰─────────────╯
 ```
 
-The host runs one **client** per connection, and each client maintains a dedicated link to
-exactly one **server**. It is built on JSON-RPC 2.0 and split into a data layer (lifecycle,
-primitives, notifications) and a transport layer (connection, framing, authorisation).
+The **host** is the app you use. It runs one **client** per connection, and each client holds a
+dedicated link to exactly one **server**.
 
-## The three server primitives
+It is built on JSON-RPC 2.0, and split into a data layer (lifecycle, primitives, notifications)
+and a transport layer (connection, framing, authorisation).
+
+## The three things a server can offer
 
 ::: key-fact Tools, resources, prompts
-- **Tools** — model-invoked actions, called via `tools/call`. The model decides to use them.
-- **Resources** — context data, read via `resources/read`. Browsable, read-only content
-  catalogues.
-- **Prompts** — reusable templates. User- or application-invoked, not model-invoked.
+- **Tools** — actions the model chooses to run, called via `tools/call`.
+- **Resources** — data to read, fetched via `resources/read`. Browsable, read-only.
+- **Prompts** — reusable templates. A person or the application picks these; the model does
+  not.
 :::
 
-The distinction the exam wants is *who invokes*. A tool is something Claude decides to call. A
-resource is data made available to be read. A prompt is a template a person or application
-picks.
+The distinction the exam wants is **who starts it**. A tool is something Claude decides to
+call. A resource is data sitting there to be read. A prompt is a template a person picks.
 
-Clients can expose their own capabilities back to servers: sampling (`sampling/createMessage`),
-elicitation (`elicitation/create`) and logging. Discovery across all of them uses `*/list`
-methods.
+Clients can offer capabilities back to servers too: sampling (`sampling/createMessage`),
+elicitation (`elicitation/create`) and logging. Finding out what exists uses `*/list` methods.
 
 ## Transports
 
-| Transport | Locality | Notes |
+| Transport | Where | Notes |
 |---|---|---|
 | **stdio** | Local process | Single client, no network, command and args |
 | **Streamable HTTP** | Remote | HTTP POST plus optional SSE; bearer, API-key or custom-header auth, OAuth recommended |
 | `sse` | — | Deprecated |
 | `ws` | Remote | WebSocket, header auth only |
 
-::: exam-tip Anchor on cardinality and locality
-stdio is local, one client, no network. Streamable HTTP is remote, many clients, HTTP with
-optional SSE. That pair of facts answers most transport questions without needing anything
-else.
+::: exam-tip Two facts answer most transport questions
+stdio is **local**, **one** client, **no network**.
+
+Streamable HTTP is **remote**, **many** clients, HTTP with optional SSE.
+
+That pair usually settles it without needing anything else.
 :::
 
 ## Configuration and scope in Claude Code
 
-Add servers with `claude mcp add` (or `add-json`). Three scopes:
+Add servers with `claude mcp add` (or `add-json`). There are three scopes:
 
 | Scope | File | Shared |
 |---|---|---|
@@ -73,17 +78,19 @@ Add servers with `claude mcp add` (or `add-json`). Three scopes:
 | **project** | `.mcp.json` at the repo root | **Yes, committed** — prompts for approval |
 | **user** | `~/.claude.json` | No — you, all your projects |
 
-::: key-fact MCP scope precedence does not merge
+::: key-fact MCP scopes do not combine
 Precedence is **local > project > user > plugin > claude.ai connector**, and the
-highest-priority entry wins **whole**. Fields are not merged between scopes. This is
-different from permission rules, which do merge — the exam likes putting the two side by side.
+highest-priority entry wins **as a whole**. Fields are not merged between scopes.
+
+This is the opposite of permission rules, which do combine. The exam likes putting the two
+side by side.
 :::
 
-Tools are namespaced `mcp__<server>__<tool>`. Manage with `claude mcp list / get / remove`
+Tools are namespaced `mcp__<server>__<tool>`. Manage them with `claude mcp list / get / remove`
 and the `/mcp` command.
 
-Environment variables expand with `${VAR}` syntax, which is how a committed `.mcp.json`
-references secrets without containing them:
+Environment variables expand with `${VAR}` syntax. That is how a committed `.mcp.json` can
+reference secrets without containing them:
 
 ```json
 {
@@ -100,7 +107,10 @@ references secrets without containing them:
 ## The naming trap
 
 ::: trap Claude API is snake_case; MCP is camelCase
-The Claude API uses `input_schema`, `is_error`, `tool_use_id`. MCP uses `inputSchema`,
-`outputSchema`, `isError`, `structuredContent`. Questions hinge on picking the field name
-that matches the layer being described, and both spellings will be offered.
+The Claude API uses `input_schema`, `is_error`, `tool_use_id`.
+
+MCP uses `inputSchema`, `outputSchema`, `isError`, `structuredContent`.
+
+Questions turn on picking the spelling that matches the layer being described — and both
+spellings will be on offer.
 :::

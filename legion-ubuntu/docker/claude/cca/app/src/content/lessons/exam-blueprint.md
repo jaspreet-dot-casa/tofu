@@ -9,9 +9,16 @@ courseChapter: intro
 ---
 
 The Claude Certified Architect – Foundations exam is not a vocabulary test. It is sixty
-multiple-choice questions wrapped around a handful of production scenarios, and almost every
-one of them asks the same underlying question: *given this brief, which architectural choice
-is correct, and why are the other three wrong in ways a real engineer would find tempting?*
+multiple-choice questions built around a few realistic work situations.
+
+Nearly every question asks the same thing in different clothes: *here is a situation — which
+design choice is right, and why do the other three sound right but are not?*
+
+::: key-fact The word "distractor"
+A **distractor** is a wrong answer written to look correct. Every question has one right
+answer and three distractors. This site uses the word constantly, because on this exam the
+wrong answers are the hard part.
+:::
 
 ## The shape of the paper
 
@@ -26,20 +33,20 @@ is correct, and why are the other three wrong in ways a real engineer would find
 | Cost | USD $125 |
 | Validity | 1 year, with a free renewal assessment before expiry |
 
-Two minutes per question sounds generous until you meet a scenario preamble that runs half a
-page. Budget accordingly — there is a whole lesson on that.
+Two minutes per question sounds like plenty. Then you meet a scenario write-up that runs half
+a page. Plan your time — there is a whole lesson on how.
 
 ::: key-fact Scaled scoring is not a percentage
-720 out of 1000 does **not** mean "get 72% right". The scale runs from 100, not 0, so the
-900 points above the floor are what you are actually competing for. Questions are also
-weighted by domain rather than counted flat. Treat 720 as a threshold on a scale, not as a
-raw mark you can compute in your head mid-exam.
+720 out of 1000 does **not** mean "get 72% right". The scale starts at 100, not 0. So the
+real contest is over the 900 points above that floor. Questions are also worth different
+amounts depending on their domain. Treat 720 as a line you have to cross, not a mark you can
+work out in your head during the exam.
 :::
 
 ## The five domains
 
-Every question belongs to exactly one domain, and the domains are weighted. This is the
-single most useful fact for planning revision, because it tells you where the marks live.
+Every question belongs to exactly one domain. The domains are not equal in size. This is the
+single most useful fact for planning your revision, because it tells you where the marks are.
 
 | Domain | Weight | ≈ questions |
 |---|---|---|
@@ -49,49 +56,47 @@ single most useful fact for planning revision, because it tells you where the ma
 | Tool Design & MCP Integration | 18% | 11 |
 | Context Management & Reliability | 15% | 9 |
 
-Agentic architecture is more than a quarter of the paper on its own, and it is also the
-domain the other four keep referring back to — a tool-design question is usually really a
-question about which agent should hold that tool. Start there.
+Agentic architecture is more than a quarter of the paper by itself. It is also the domain the
+other four keep pointing back to — a tool-design question is often really a question about
+which agent should hold that tool. Start there.
 
-## Scenario-based, not concept-based
+## It is about situations, not definitions
 
-The six scenarios in the pool are all recognisable production briefs: a customer support
-agent, a code-generation rollout, a multi-agent research system, an internal developer
-assistant, a CI/CD review pipeline, and a document extraction service. You will see four of
-them.
+The six scenarios in the pool are all normal-looking work briefs: a customer support agent, a
+code-generation rollout, a multi-agent research system, an internal developer assistant, a
+CI/CD review pipeline, and a document extraction service. You will get four of them.
 
-This matters for how you revise. Learning "what is hub-and-spoke" gets you very little.
-Learning "in a research system where one subagent has died, what does the coordinator return
-to the user, and why is returning an empty result the wrong answer" gets you the mark.
+This changes how you should revise. Learning "what is hub-and-spoke" earns you very little.
+Learning "in a research system where one subagent has died, what should the coordinator tell
+the user, and why is returning an empty result wrong" earns you the mark.
 
-::: exam-tip Read the question type before the options
-Roughly half the questions are "which of these should you do", and roughly half are "which
-of these should you **not** do" or "what is the flaw in this design". Misreading the polarity
-is the cheapest way to lose a mark you actually knew. Find the verb before you read the
-options.
+::: exam-tip Find out what the question wants before you read the options
+About half the questions ask "which of these should you do". The other half ask "which should
+you **not** do", or "what is wrong with this design". Missing that flip is the cheapest way
+to lose a mark you actually knew. Find the verb first.
 :::
 
-## The single most useful heuristic
+## The single most useful rule
 
 If you remember one thing from this whole site, make it this:
 
-::: key-fact Programmatic enforcement beats prompt-based guidance
-When a scenario says something must *always* happen, must *never* happen, or must be
-*guaranteed*, the answer is a hook, a permission rule, a schema, or a validation gate — not
-an instruction in a prompt or a line in `CLAUDE.md`. Prompts are probabilistic. Code is not.
+::: key-fact Enforce it in code, do not ask for it in a prompt
+When a situation says something must *always* happen, must *never* happen, or must be
+*guaranteed*, the answer is a hook, a permission rule, a schema, or a validation gate. It is
+not an instruction in a prompt or a line in `CLAUDE.md`. A prompt is a request. Code is a
+rule.
 :::
 
-An enormous share of the distractors on this exam are "add an instruction telling Claude to
-always do X". They are almost always wrong, and they are wrong for a reason worth internalising
-rather than memorising: a model can decline to follow an instruction, and a system that
-depends on it declining not to has no failure mode you can reason about.
+A huge share of the wrong answers on this exam are some version of "add an instruction telling
+Claude to always do X". They are nearly always wrong, and the reason is worth understanding
+rather than memorising: a model can choose not to follow an instruction. If your system only
+works when the model cooperates, you have no way to predict how it fails.
 
 ## What this site is, and is not
 
-The official Exam Guide lives in Anthropic's Partner Academy and is the source of truth for
-domains, task statements and sample questions. The lessons here are a synthesis built from
-the public blueprint, the freeCodeCamp course, and the underlying Claude and MCP
-documentation. The questions are written in the exam's style — they are practice, not leaked
-items.
+The official Exam Guide lives in Anthropic's Partner Academy. It is the source of truth for
+the domains, the task statements and the sample questions. The lessons here are built from
+the public blueprint, the freeCodeCamp course, and the Claude and MCP documentation. The
+questions are written in the exam's style — they are practice, not leaked exam items.
 
-Use this to find your gaps. Use the official guide to confirm the scope.
+Use this site to find your weak spots. Use the official guide to confirm the scope.
