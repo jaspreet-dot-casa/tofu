@@ -3,8 +3,12 @@
 	 * tmux-style status line. Present on every screen: wordmark, sections, and a
 	 * right-hand instrument cluster. During a mock exam the clock slot is taken over
 	 * by the countdown — drill mode has no clock anywhere, deliberately.
+	 *
+	 * Below 640px the section row does not fit, so it collapses into a disclosure
+	 * panel behind the menu button. The same links, at thumb-sized targets.
 	 */
 	import { page } from '$app/state';
+	import { afterNavigate } from '$app/navigation';
 	import Icon from './Icon.svelte';
 	import { formatDuration } from '$lib/format';
 
@@ -26,6 +30,23 @@
 	];
 
 	let theme = $state<'dark' | 'light'>('dark');
+	let menuOpen = $state(false);
+	let menuEl = $state<HTMLElement | null>(null);
+
+	afterNavigate(() => {
+		menuOpen = false;
+	});
+
+	/** A tap anywhere outside the disclosure dismisses it, as a menu should. */
+	function onWindowPointerDown(event: PointerEvent) {
+		if (!menuOpen) return;
+		if (menuEl && event.target instanceof Node && menuEl.contains(event.target)) return;
+		menuOpen = false;
+	}
+
+	function onWindowKeyDown(event: KeyboardEvent) {
+		if (event.key === 'Escape') menuOpen = false;
+	}
 
 	$effect(() => {
 		theme = document.documentElement.dataset.theme === 'light' ? 'light' : 'dark';
@@ -51,6 +72,8 @@
 		return { text: formatDuration(total), urgent: total < 300, warn: total < 1200 };
 	});
 </script>
+
+<svelte:window onpointerdown={onWindowPointerDown} onkeydown={onWindowKeyDown} />
 
 <header class="statusline">
 	<div class="statusline__inner">
@@ -95,6 +118,33 @@
 			>
 				<Icon name="theme" />
 			</button>
+
+			<div class="menu" bind:this={menuEl}>
+				<button
+					class="menubtn"
+					type="button"
+					aria-label={menuOpen ? 'Close menu' : 'Open menu'}
+					aria-expanded={menuOpen}
+					aria-controls="statusline-menu"
+					onclick={() => (menuOpen = !menuOpen)}
+				>
+					<Icon name={menuOpen ? 'close' : 'menu'} size={16} />
+				</button>
+
+				{#if menuOpen}
+					<nav class="panel" id="statusline-menu" aria-label="Sections">
+						{#each SECTIONS as section (section.href)}
+							<a
+								href={section.href}
+								class="panel__item"
+								class:is-active={isActive(section.href)}
+								aria-current={isActive(section.href) ? 'page' : undefined}
+								onclick={() => (menuOpen = false)}>{section.label}</a
+							>
+						{/each}
+					</nav>
+				{/if}
+			</div>
 		</div>
 	</div>
 </header>
@@ -243,13 +293,85 @@
 		border-color: var(--border-strong);
 	}
 
-	/* Under 640px the middle section hides; in-page navigation takes over. */
+	/* The disclosure only exists below the breakpoint; the section row is the
+	   desktop affordance and the two are never both on screen. */
+	.menu {
+		display: none;
+	}
+
+	/* Sized for a thumb, not a cursor — as tall as the 48px bar allows. */
+	.menubtn {
+		display: grid;
+		place-items: center;
+		background: none;
+		border: 1px solid var(--border);
+		border-radius: var(--r-ctl);
+		color: var(--text-2);
+		cursor: pointer;
+		width: 44px;
+		height: 40px;
+		padding: 0;
+		-webkit-tap-highlight-color: transparent;
+	}
+
+	.menubtn[aria-expanded='true'] {
+		color: var(--text-1);
+		border-color: var(--border-strong);
+		background: var(--bg-2);
+	}
+
+	/* Anchored to .statusline (the sticky positions it), so the panel spans the
+	   full width of the bar rather than the button. */
+	.panel {
+		position: absolute;
+		top: 100%;
+		left: 0;
+		right: 0;
+		display: flex;
+		flex-direction: column;
+		background: var(--bg-1);
+		border-bottom: 1px solid var(--border);
+		box-shadow: var(--shadow-1);
+		padding: var(--sp-2) 0;
+	}
+
+	.panel__item {
+		font-family: var(--font-mono);
+		font-size: var(--fs-small);
+		letter-spacing: 0.04em;
+		color: var(--text-2);
+		text-decoration: none;
+		min-height: 44px;
+		display: flex;
+		align-items: center;
+		padding: 0 var(--sp-4);
+		border-left: 2px solid transparent;
+		-webkit-tap-highlight-color: transparent;
+	}
+
+	/* The palette is warm; the browser's blue tap flash is suppressed above, so
+	   the press needs its own feedback. */
+	.panel__item:active {
+		background: var(--bg-2);
+		color: var(--text-1);
+	}
+
+	.panel__item.is-active {
+		color: var(--text-1);
+		border-left-color: var(--brand);
+		background: var(--brand-soft);
+	}
+
+	/* Under 640px the section row does not fit — the menu button takes over. */
 	@media (max-width: 640px) {
 		.statusline__inner {
 			padding: 0 var(--sp-4);
 		}
 		.sections {
 			display: none;
+		}
+		.menu {
+			display: block;
 		}
 	}
 </style>
