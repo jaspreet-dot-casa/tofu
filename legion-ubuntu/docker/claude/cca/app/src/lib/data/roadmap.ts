@@ -84,6 +84,11 @@ export const ROADMAP: RoadmapStep[] = [
 /** Extra references worth having on the resources page but not part of the seven steps. */
 export const EXTRA_RESOURCES = [
 	{
+		label: 'Community exam guide (paullarionov/claude-certified-architect)',
+		href: 'https://github.com/paullarionov/claude-certified-architect/blob/main/guide_en.md',
+		note: 'Candidate-sourced, not official: 13 theory chapters, per-domain notes and ~88 worked questions. The source for the eight-scenario pool. Cross-check anything surprising against the docs.'
+	},
+	{
 		label: 'Building Effective Agents (Anthropic essay)',
 		href: 'https://www.anthropic.com/engineering/building-effective-agents',
 		note: 'The source of the five composable patterns and the "start simple" rule.'

@@ -1,23 +1,21 @@
 /**
- * Lesson completion, daily activity and the streak.
+ * Lesson completion, curriculum progress, daily activity and the streak.
+ *
+ * Reading a lesson is the only thing this app tracks. There is no score and no
+ * prediction — "how much of the curriculum have I been through" is a question the
+ * data can actually answer, so it is the only one asked.
  */
 
 import { all, get, run, type SqlRow } from './db';
-import { LESSONS, type Lesson } from './content';
+import { LESSONS, lessonsForTrack, type Lesson } from './content';
+import { DOMAINS } from '$lib/data/domains';
 import { dayKey } from '$lib/format';
-import type { ActivityDay } from '$lib/types';
+import type { ActivityDay, Completion, DomainProgress } from '$lib/types';
 
-export type ActivityKind = 'lessons' | 'questions' | 'cards';
-
-/** Fixed set, so interpolating the column name is safe. */
-const ACTIVITY_KINDS: readonly ActivityKind[] = ['lessons', 'questions', 'cards'];
-
-export function recordActivity(profileId: string, kind: ActivityKind, amount = 1): void {
-	if (!ACTIVITY_KINDS.includes(kind)) throw new Error(`unknown activity kind "${kind}"`);
-
+export function recordActivity(profileId: string, amount = 1): void {
 	run(
-		`INSERT INTO activity (profile_id, day, ${kind}) VALUES (?, ?, ?)
-		 ON CONFLICT(profile_id, day) DO UPDATE SET ${kind} = ${kind} + excluded.${kind}`,
+		`INSERT INTO activity (profile_id, day, lessons) VALUES (?, ?, ?)
+		 ON CONFLICT(profile_id, day) DO UPDATE SET lessons = lessons + excluded.lessons`,
 		profileId,
 		dayKey(),
 		amount
@@ -60,7 +58,26 @@ export function setLessonComplete(profileId: string, lessonId: string, complete:
 		lessonId,
 		new Date().toISOString()
 	);
-	if (!already) recordActivity(profileId, 'lessons');
+	if (!already) recordActivity(profileId);
+}
+
+function tally(lessons: readonly Lesson[], completed: ReadonlySet<string>): Completion {
+	const done = lessons.reduce((n, l) => n + (completed.has(l.id) ? 1 : 0), 0);
+	const total = lessons.length;
+	return { done, total, percent: total === 0 ? 0 : Math.round((done / total) * 100) };
+}
+
+/** Every lesson in the curriculum, orientation included. */
+export function overallProgress(completed: ReadonlySet<string>): Completion {
+	return tally(LESSONS, completed);
+}
+
+/**
+ * One row per domain, in blueprint order. Domains are listed even when untouched —
+ * a progress panel that hides the parts you have not started is not a progress panel.
+ */
+export function domainProgress(completed: ReadonlySet<string>): DomainProgress[] {
+	return DOMAINS.map((domain) => ({ domain, ...tally(lessonsForTrack(domain.id), completed) }));
 }
 
 /**
@@ -75,13 +92,11 @@ export function nextLesson(completed: ReadonlySet<string>): Lesson | null {
 interface ActivityRow extends SqlRow {
 	day: string;
 	lessons: number;
-	questions: number;
-	cards: number;
 }
 
 function activityRows(profileId: string, since: string): ActivityRow[] {
 	return all<ActivityRow>(
-		'SELECT day, lessons, questions, cards FROM activity WHERE profile_id = ? AND day >= ?',
+		'SELECT day, lessons FROM activity WHERE profile_id = ? AND day >= ?',
 		profileId,
 		since
 	);
@@ -94,14 +109,8 @@ export function activityWindow(profileId: string, days = 28): ActivityDay[] {
 	const window: ActivityDay[] = [];
 	for (let i = days - 1; i >= 0; i--) {
 		const day = dayKey(-i);
-		const row = byDay.get(day);
-		window.push({
-			day,
-			lessons: row?.lessons ?? 0,
-			questions: row?.questions ?? 0,
-			cards: row?.cards ?? 0,
-			active: row !== undefined && row.lessons + row.questions + row.cards > 0
-		});
+		const lessons = byDay.get(day)?.lessons ?? 0;
+		window.push({ day, lessons, active: lessons > 0 });
 	}
 	return window;
 }
@@ -116,7 +125,7 @@ export function activityWindow(profileId: string, days = 28): ActivityDay[] {
 export function currentStreak(profileId: string): number {
 	const active = new Set(
 		activityRows(profileId, dayKey(-365))
-			.filter((r) => r.lessons + r.questions + r.cards > 0)
+			.filter((r) => r.lessons > 0)
 			.map((r) => r.day)
 	);
 	if (active.size === 0) return 0;

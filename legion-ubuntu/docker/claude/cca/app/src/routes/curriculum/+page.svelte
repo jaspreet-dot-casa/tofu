@@ -17,9 +17,18 @@
 	<header>
 		<h1 class="page-title">Curriculum</h1>
 		<p class="lede">
-			Thirty-two chapters mapped onto the exam's own five weighted domains, plus a playbook for
-			each of the six production scenarios the paper draws from.
+			Every chapter mapped onto the exam's own five weighted domains, plus a playbook for each
+			production scenario the paper draws from. Mark a chapter read and it counts towards the
+			bar below.
 		</p>
+		<div class="overall">
+			<div class="overall__track">
+				<div class="overall__fill" style="width: {data.overall.percent}%"></div>
+			</div>
+			<p class="overall__meta mono">
+				{data.overall.done}/{data.overall.total} chapters · {data.overall.percent}%
+			</p>
+		</div>
 	</header>
 
 	{#if data.orientation.length > 0}
@@ -72,7 +81,8 @@
 						</div>
 						<p class="domain__blurb">{domain.blurb}</p>
 						<p class="domain__meta">
-							<span class="chip chip--{domain.accent}">{domain.weight}% · ~{domain.questionShare} q</span
+							<span class="chip chip--{domain.accent}"
+								>{domain.weight}% · ~{domain.questionShare} q</span
 							>
 							<span class="mono">{domain.lessonsDone}/{domain.lessonsTotal} chapters</span>
 						</p>
@@ -99,7 +109,6 @@
 							{#each scenario.domains as id (id)}
 								<span class="chip chip--{id}">{id.toUpperCase()}</span>
 							{/each}
-							<span class="mono">{scenario.questionCount} questions</span>
 						</p>
 					</a>
 				</li>
@@ -109,6 +118,37 @@
 </div>
 
 <style>
+	.overall {
+		display: flex;
+		align-items: center;
+		gap: var(--sp-4);
+		margin-top: var(--sp-4);
+		max-width: 66ch;
+	}
+
+	.overall__track {
+		flex: 1;
+		height: 10px;
+		border-radius: var(--r-pill);
+		background: var(--track);
+		border: 1px solid var(--border);
+		overflow: hidden;
+	}
+
+	.overall__fill {
+		height: 100%;
+		background: var(--brand);
+		border-radius: var(--r-pill);
+		transition: width var(--dur-2) var(--ease-std);
+	}
+
+	.overall__meta {
+		margin: 0;
+		font-size: var(--fs-label);
+		color: var(--text-3);
+		white-space: nowrap;
+	}
+
 	ul {
 		list-style: none;
 		margin: 0;

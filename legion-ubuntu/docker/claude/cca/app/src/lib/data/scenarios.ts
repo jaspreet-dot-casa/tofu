@@ -1,16 +1,19 @@
 /**
- * The six exam scenarios. An attempt draws four of them at random and asks roughly
+ * The exam scenarios. An attempt draws four of them at random and asks roughly
  * fifteen questions against each, so a scenario is the real unit of study — not a
  * topic. Each one exercises several domains at once, which is the whole point: the
  * exam tests architectural judgement under a concrete brief, not recall.
+ *
+ * The real pool is eight (see EXAM.scenarioPoolSize). Seven are covered here; the
+ * eighth, "agentic AI tools", is reported by candidates but has no published question
+ * set to build from, and inventing one would teach guesses as facts.
  */
 
 import type { DomainId } from './domains';
 
 /**
- * The exam draws four of these six. Declaring the ids as a tuple gives the rest of
- * the app a real union to check against instead of bare strings — question modules,
- * quiz targets and route params all narrow to it.
+ * The exam draws four. Declaring the ids as a tuple gives the rest of the app a real
+ * union to check against instead of bare strings — route params narrow to it.
  */
 export const SCENARIO_IDS = [
 	'support',
@@ -18,7 +21,8 @@ export const SCENARIO_IDS = [
 	'research',
 	'devtools',
 	'ci-cd',
-	'extraction'
+	'extraction',
+	'conversational'
 ] as const;
 
 export type ScenarioId = (typeof SCENARIO_IDS)[number];
@@ -118,6 +122,20 @@ export const SCENARIOS: readonly Scenario[] = [
 			'What a retry can fix and what it cannot',
 			'Batch versus real-time, and the SLA trap',
 			'Sampling strategies that catch per-type failures'
+		]
+	},
+	{
+		id: 'conversational',
+		slug: 'conversational-architecture',
+		title: 'Conversational AI Architecture Patterns',
+		premise:
+			'A multi-turn assistant has to hold a conversation over dozens of turns: remembering what matters, keeping its instructions from eroding, resolving what the user contradicts, and never letting a chat turn into an irreversible action by accident.',
+		domains: ['d5', 'd3', 'd4'],
+		tests: [
+			'That the API is stateless, and everything that follows from it',
+			'Which memory strategy fits which decay — truncation, summary, or retrieval',
+			'Why instructions drift over turns and what actually stops it',
+			'Binding a destructive tool call to a preview the user confirmed'
 		]
 	}
 ];

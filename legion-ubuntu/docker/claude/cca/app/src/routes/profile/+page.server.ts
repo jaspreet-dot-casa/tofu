@@ -11,8 +11,7 @@ import {
 	resetProfile,
 	serialize
 } from '$lib/server/profile';
-import { computeReadiness } from '$lib/server/readiness';
-import { activityWindow } from '$lib/server/progress';
+import { activityWindow, completedLessonIds, overallProgress } from '$lib/server/progress';
 import { stringField } from '$lib/server/form';
 
 /** Twelve weeks of dots on the profile page. */
@@ -23,7 +22,7 @@ export const load: PageServerLoad = async ({ locals }) => {
 	return {
 		profileId: locals.profileId,
 		stats: profileStats(locals.profileId),
-		readiness: computeReadiness(locals.profileId),
+		overall: overallProgress(completedLessonIds(locals.profileId)),
 		activity: activityWindow(locals.profileId, ACTIVITY_DAYS)
 	};
 };

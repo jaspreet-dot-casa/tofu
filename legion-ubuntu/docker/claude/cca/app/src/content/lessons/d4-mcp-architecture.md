@@ -51,6 +51,20 @@ call. A resource is data sitting there to be read. A prompt is a template a pers
 Clients can offer capabilities back to servers too: sampling (`sampling/createMessage`),
 elicitation (`elicitation/create`) and logging. Finding out what exists uses `*/list` methods.
 
+### What resources are actually for
+
+Resources are easy to dismiss as "tools but weaker". Their real job is to hand the agent a
+**map** so it does not have to go exploring to find one.
+
+Typical resources: a catalogue of every task in a project, a database schema, an API reference,
+a set of issue summaries. Without them, an agent that needs to know what data exists has to
+spend a run of exploratory tool calls — and a context window — discovering it.
+
+::: exam-tip Exploratory calls are the symptom a resource cures
+If a question describes an agent burning turns working out what is available before it can do
+anything useful, the answer is to expose that structure as a resource.
+:::
+
 ## Transports
 
 | Transport | Where | Notes |

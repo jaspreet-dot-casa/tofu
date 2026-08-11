@@ -112,26 +112,19 @@ export const COOKIE_OPTIONS = {
 export interface ProfileStats {
 	createdAt: string | null;
 	lessons: number;
-	attempts: number;
-	cards: number;
 }
 
 export function profileStats(profileId: string): ProfileStats {
-	const row = get<{ created_at: string; lessons: number; attempts: number; cards: number }>(
+	const row = get<{ created_at: string; lessons: number }>(
 		`SELECT p.created_at,
-		        (SELECT COUNT(*) FROM lesson_progress WHERE profile_id = p.id) AS lessons,
-		        (SELECT COUNT(*) FROM quiz_attempts  WHERE profile_id = p.id
-		                                              AND finished_at IS NOT NULL) AS attempts,
-		        (SELECT COUNT(*) FROM card_reviews   WHERE profile_id = p.id) AS cards
+		        (SELECT COUNT(*) FROM lesson_progress WHERE profile_id = p.id) AS lessons
 		   FROM profiles p WHERE p.id = ?`,
 		profileId
 	);
 
 	return {
 		createdAt: row?.created_at ?? null,
-		lessons: row?.lessons ?? 0,
-		attempts: row?.attempts ?? 0,
-		cards: row?.cards ?? 0
+		lessons: row?.lessons ?? 0
 	};
 }
 
@@ -139,8 +132,6 @@ export function profileStats(profileId: string): ProfileStats {
 export function resetProfile(profileId: string): void {
 	tx(() => {
 		run('DELETE FROM lesson_progress WHERE profile_id = ?', profileId);
-		run('DELETE FROM quiz_attempts WHERE profile_id = ?', profileId);
-		run('DELETE FROM card_reviews WHERE profile_id = ?', profileId);
 		run('DELETE FROM activity WHERE profile_id = ?', profileId);
 	});
 }
@@ -149,24 +140,7 @@ export interface ProfileExport {
 	profileId: string;
 	exportedAt: string;
 	lessons: { lesson_id: string; completed_at: string }[];
-	attempts: {
-		id: string;
-		mode: string;
-		target: string | null;
-		started_at: string;
-		finished_at: string | null;
-		scaled_score: number | null;
-		passed: number | null;
-	}[];
-	cards: {
-		card_id: string;
-		due_at: string;
-		interval_days: number;
-		ease: number;
-		reps: number;
-		lapses: number;
-	}[];
-	activity: { day: string; lessons: number; questions: number; cards: number }[];
+	activity: { day: string; lessons: number }[];
 }
 
 /** Everything this profile has, for the JSON export. */
@@ -178,33 +152,8 @@ export function exportProfile(profileId: string): ProfileExport {
 			'SELECT lesson_id, completed_at FROM lesson_progress WHERE profile_id = ?',
 			profileId
 		),
-		attempts: all<{
-			id: string;
-			mode: string;
-			target: string | null;
-			started_at: string;
-			finished_at: string | null;
-			scaled_score: number | null;
-			passed: number | null;
-		}>(
-			`SELECT id, mode, target, started_at, finished_at, scaled_score, passed
-			   FROM quiz_attempts WHERE profile_id = ?`,
-			profileId
-		),
-		cards: all<{
-			card_id: string;
-			due_at: string;
-			interval_days: number;
-			ease: number;
-			reps: number;
-			lapses: number;
-		}>(
-			`SELECT card_id, due_at, interval_days, ease, reps, lapses
-			   FROM card_reviews WHERE profile_id = ?`,
-			profileId
-		),
-		activity: all<{ day: string; lessons: number; questions: number; cards: number }>(
-			'SELECT day, lessons, questions, cards FROM activity WHERE profile_id = ?',
+		activity: all<{ day: string; lessons: number }>(
+			'SELECT day, lessons FROM activity WHERE profile_id = ?',
 			profileId
 		)
 	};

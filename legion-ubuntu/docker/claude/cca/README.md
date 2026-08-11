@@ -3,10 +3,11 @@
 Study app for the **Claude Certified Architect – Foundations (CCA-F)** exam, at
 `cca.${DOMAIN}`. Built from source in `app/` — SvelteKit 2 / Svelte 5 on adapter-node.
 
-Not a blog. It is a readiness instrument: chapters mapped onto the exam's own weighted
-blueprint, a scenario-based question bank in the exam's format, spaced-repetition drills,
-and a readiness score reported on the same 100–1000 scale with the 720 pass line drawn on
-it.
+A study tracker, not a mock-exam engine. Chapters mapped onto the exam's own weighted
+blueprint, a playbook for each production scenario the paper draws from, a curated resource
+list, and a progress bar over the chapters you have read. It deliberately does not simulate
+the exam or score you — the only thing it measures is how much of the curriculum you have
+been through.
 
 ## Running it
 
@@ -128,17 +129,13 @@ Body text.
 Scenario playbooks live in `app/src/content/scenarios/<scenario-slug>.md` (no frontmatter;
 the slug must match `app/src/lib/data/scenarios.ts`).
 
-Questions are typed modules in `app/src/lib/data/questions/`, one per scenario. **Author the
-correct answer at index 0** — options are permuted deterministically per attempt at serve
-time, so authoring order never leaks into the UI. Flashcards live in
-`app/src/lib/data/cards/`, one module per domain.
+## Sources
 
-Any `lesson:` field on a question or card must match a lesson filename, or the "revise the
-chapter" link 404s. Check them with:
-
-```bash
-comm -13 <(ls app/src/content/lessons | sed 's/\.md$//' | sort) <(rg -o "lesson: '([a-z0-9-]+)'" -r '$1' app/src/lib/data | cut -d: -f2 | sort -u)
-```
+The curriculum is built from the official exam guide plus the community-maintained
+[candidate guide](https://github.com/paullarionov/claude-certified-architect/blob/main/guide_en.md),
+which is where the eight-scenario pool and the conversational-architecture briefing come
+from. That guide is candidate-sourced rather than official — treat its claims as leads to
+verify against the Anthropic docs, not as settled fact.
 
 ## Local development
 

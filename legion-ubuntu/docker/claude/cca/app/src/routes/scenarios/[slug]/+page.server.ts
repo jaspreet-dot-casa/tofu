@@ -3,7 +3,6 @@ import type { PageServerLoad } from './$types';
 import { SCENARIO_BY_SLUG } from '$lib/data/scenarios';
 import { SCENARIO_NOTES } from '$lib/server/content';
 import { DOMAIN_BY_ID, type DomainId } from '$lib/data/domains';
-import { questionsForScenario } from '$lib/data/questions';
 
 export const load: PageServerLoad = async ({ params }) => {
 	const scenario = SCENARIO_BY_SLUG.get(params.slug);
@@ -20,7 +19,6 @@ export const load: PageServerLoad = async ({ params }) => {
 			tests: scenario.tests
 		},
 		domains: scenario.domains.map((id: DomainId) => DOMAIN_BY_ID[id]),
-		questionCount: questionsForScenario(scenario.id).length,
 		html: note?.html ?? null,
 		toc: note?.toc ?? []
 	};

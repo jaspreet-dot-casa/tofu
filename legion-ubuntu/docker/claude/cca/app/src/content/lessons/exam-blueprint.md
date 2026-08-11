@@ -27,7 +27,7 @@ wrong answers are the hard part.
 | Questions | 60, multiple choice — one correct answer, three distractors |
 | Time | 120 minutes |
 | Scoring | scaled 100–1000, **720 to pass** |
-| Draw | 4 scenarios selected at random from a pool of 6, roughly 15 questions each |
+| Draw | 4 scenarios selected at random from a pool of 8, roughly 15 questions each |
 | Delivery | Pearson VUE, online-proctored or test centre |
 | Conditions | closed book, no documentation, no Claude |
 | Cost | USD $125 |
@@ -62,9 +62,28 @@ which agent should hold that tool. Start there.
 
 ## It is about situations, not definitions
 
-The six scenarios in the pool are all normal-looking work briefs: a customer support agent, a
-code-generation rollout, a multi-agent research system, an internal developer assistant, a
-CI/CD review pipeline, and a document extraction service. You will get four of them.
+The scenarios in the pool are all normal-looking work briefs. Six are well documented:
+
+1. A customer support agent
+2. A code-generation rollout with Claude Code
+3. A multi-agent research system
+4. An internal developer-productivity assistant
+5. A CI/CD review pipeline
+6. A document extraction service
+
+Two more show up in candidate reports:
+
+7. **Conversational AI architecture patterns** — multi-turn memory, instruction drift,
+   ambiguity, and safe tool design. There is a full briefing for this one here.
+8. **Agentic AI tools** — reported, but nobody has published what it actually asks. Go in
+   expecting that a fourth of your paper could be a brief you have not rehearsed.
+
+You will get four of the eight.
+
+::: trap The pool is 8, not 6
+Older prep material — including earlier versions of this site — says six. Plan for eight, and
+in particular do not assume that having drilled six briefs means you have seen the whole pool.
+:::
 
 This changes how you should revise. Learning "what is hub-and-spoke" earns you very little.
 Learning "in a research system where one subagent has died, what should the coordinator tell

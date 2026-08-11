@@ -1,7 +1,6 @@
 <script lang="ts">
 	import '../app.css';
 	import StatusLine from '$lib/components/StatusLine.svelte';
-	import { quizClock } from '$lib/state/quizClock.svelte';
 	import type { LayoutServerData } from './$types';
 
 	interface Props {
@@ -12,7 +11,7 @@
 	let { data, children }: Props = $props();
 </script>
 
-<StatusLine streak={data.streak} cardsDue={data.cardsDue} countdownMs={quizClock.remainingMs} />
+<StatusLine streak={data.streak} />
 
 <main>
 	{@render children()}

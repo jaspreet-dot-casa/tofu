@@ -85,5 +85,5 @@ Closed book, proctored, no Claude and no documentation. That has one practical e
 you revise: anything that is a *number* — cache TTLs, minimum cacheable tokens, retryable
 status codes, hook exit codes — has to be genuinely memorised, because you cannot look it up.
 
-That is what the flashcard decks on this site are for. Everything else you can work out from
-the mental models.
+Keep a short list of those numbers and rehearse it in the last day or two. Everything else you
+can work out from the mental models.

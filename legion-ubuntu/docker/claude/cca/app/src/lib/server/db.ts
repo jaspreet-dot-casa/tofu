@@ -89,6 +89,17 @@ const MIGRATIONS: string[] = [
 		cards       INTEGER NOT NULL DEFAULT 0,
 		PRIMARY KEY (profile_id, day)
 	);
+	`,
+	// The quiz and flashcard features were removed: this is a study tracker, not a
+	// mock-exam engine. Their tables and the activity counters that fed them go with
+	// them. `lessons` is the only kind of activity there is now.
+	`
+	DROP TABLE IF EXISTS quiz_answers;
+	DROP TABLE IF EXISTS quiz_attempts;
+	DROP TABLE IF EXISTS card_reviews;
+
+	ALTER TABLE activity DROP COLUMN questions;
+	ALTER TABLE activity DROP COLUMN cards;
 	`
 ];
 

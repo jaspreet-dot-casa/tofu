@@ -74,20 +74,12 @@
 			<p class="eyebrow">This profile</p>
 			<dl class="stats">
 				<div>
-					<dt>Readiness</dt>
-					<dd class="mono" class:is-pass={data.readiness.passed}>{data.readiness.score}</dd>
-				</div>
-				<div>
 					<dt>Chapters read</dt>
-					<dd class="mono">{data.stats.lessons}</dd>
+					<dd class="mono">{data.overall.done}/{data.overall.total}</dd>
 				</div>
 				<div>
-					<dt>Papers sat</dt>
-					<dd class="mono">{data.stats.attempts}</dd>
-				</div>
-				<div>
-					<dt>Cards in rotation</dt>
-					<dd class="mono">{data.stats.cards}</dd>
+					<dt>Curriculum</dt>
+					<dd class="mono">{data.overall.percent}%</dd>
 				</div>
 			</dl>
 			{#if data.stats.createdAt}
@@ -211,10 +203,6 @@
 		font-size: var(--fs-h3);
 		font-weight: 700;
 		font-variant-numeric: tabular-nums;
-	}
-
-	dd.is-pass {
-		color: var(--pass);
 	}
 
 	.actions {

@@ -2,7 +2,6 @@ import { json } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
 import { get } from '$lib/server/db';
 import { LESSONS } from '$lib/server/content';
-import { QUESTIONS } from '$lib/data/questions';
 
 /**
  * Liveness probe for the container healthcheck. Touching the database is deliberate —
@@ -13,7 +12,6 @@ export const GET: RequestHandler = () => {
 
 	return json({
 		status: row?.ok === 1 ? 'ok' : 'degraded',
-		lessons: LESSONS.length,
-		questions: QUESTIONS.length
+		lessons: LESSONS.length
 	});
 };

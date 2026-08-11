@@ -7,8 +7,6 @@
 	}
 
 	let { data }: Props = $props();
-
-	const accuracy = $derived(data.readiness.accuracy);
 </script>
 
 <svelte:head>
@@ -25,10 +23,8 @@
 	<div class="card">
 		<DomainMeter
 			domain={data.domain}
-			value={data.readiness.proficiency}
-			stats="{data.readiness.points}/{data.readiness.ceiling} scaled points · {accuracy !== null
-				? `${accuracy}% recent accuracy over ${data.readiness.questionsAnswered} answers`
-				: 'no drills yet'}"
+			value={data.progress.total === 0 ? 0 : data.progress.done / data.progress.total}
+			stats="{data.progress.done}/{data.progress.total} chapters read · {data.progress.percent}%"
 		/>
 	</div>
 
@@ -38,22 +34,13 @@
 			<p class="fact__l">questions on the paper</p>
 		</div>
 		<div class="fact">
-			<p class="fact__n">{data.readiness.ceiling}</p>
-			<p class="fact__l">scaled points at stake</p>
+			<p class="fact__n">{data.lessons.length}</p>
+			<p class="fact__l">chapters here</p>
 		</div>
 		<div class="fact">
-			<p class="fact__n">{data.questionCount}</p>
-			<p class="fact__l">practice questions here</p>
+			<p class="fact__n">{data.readingMinutes}</p>
+			<p class="fact__l">minutes of reading</p>
 		</div>
-		<div class="fact">
-			<p class="fact__n">{data.cardCount}</p>
-			<p class="fact__l">flashcards</p>
-		</div>
-	</div>
-
-	<div class="actions">
-		<a class="btn btn--primary" href="/quiz?domain={data.domain.id}">Drill this domain</a>
-		<a class="btn btn--secondary" href="/cards?domain={data.domain.id}">Review the deck</a>
 	</div>
 
 	<section>
@@ -137,12 +124,6 @@
 		font-size: var(--fs-small);
 		color: var(--text-2);
 		margin: var(--sp-2) 0 0;
-	}
-
-	.actions {
-		display: flex;
-		gap: var(--sp-3);
-		flex-wrap: wrap;
 	}
 
 	.lessons,

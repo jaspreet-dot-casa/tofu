@@ -804,40 +804,6 @@ pre.code[data-lang='text']::before {
 	}
 }
 
-/* ── Answer review ──────────────────────────────────────────────────────────────
-   The per-distractor autopsy list, shared by the drill runner and the results
-   review. This list is the product's whole point, so it gets room. */
-
-.whywrong {
-	list-style: none;
-	margin: 0;
-	padding: 0;
-}
-
-.whywrong li {
-	display: flex;
-	gap: var(--sp-3);
-	font-family: var(--font-prose);
-	font-size: var(--fs-small);
-	font-weight: 400;
-	line-height: 1.65;
-	color: var(--text-2);
-	max-width: 66ch;
-}
-
-.whywrong li + li {
-	margin-top: var(--sp-4);
-}
-
-.whywrong__key {
-	font-family: var(--font-mono);
-	font-size: var(--fs-label);
-	font-weight: 700;
-	color: var(--text-3);
-	flex: none;
-	padding-top: 2px;
-}
-
 /* ── Utility ────────────────────────────────────────────────────────────────── */
 
 .empty {

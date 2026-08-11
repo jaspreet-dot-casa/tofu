@@ -1,8 +1,7 @@
 <script lang="ts">
 	/**
 	 * tmux-style status line. Present on every screen: wordmark, sections, and a
-	 * right-hand instrument cluster. During a mock exam the clock slot is taken over
-	 * by the countdown — drill mode has no clock anywhere, deliberately.
+	 * right-hand cluster carrying the study streak and the theme toggle.
 	 *
 	 * Below 640px the section row does not fit, so it collapses into a disclosure
 	 * panel behind the menu button. The same links, at thumb-sized targets.
@@ -10,23 +9,18 @@
 	import { page } from '$app/state';
 	import { afterNavigate } from '$app/navigation';
 	import Icon from './Icon.svelte';
-	import { formatDuration } from '$lib/format';
 
 	interface Props {
 		streak: number;
-		cardsDue: number;
-		/** Milliseconds remaining; only ever set during a mock exam. */
-		countdownMs?: number | null;
 	}
 
-	let { streak, cardsDue, countdownMs = null }: Props = $props();
+	let { streak }: Props = $props();
 
 	const SECTIONS = [
-		{ href: '/', label: 'dashboard' },
+		{ href: '/', label: 'progress' },
 		{ href: '/curriculum', label: 'curriculum' },
-		{ href: '/quiz', label: 'quiz' },
-		{ href: '/cards', label: 'cards' },
-		{ href: '/resources', label: 'resources' }
+		{ href: '/resources', label: 'resources' },
+		{ href: '/profile', label: 'profile' }
 	];
 
 	let theme = $state<'dark' | 'light'>('dark');
@@ -66,11 +60,6 @@
 		return href === '/' ? page.url.pathname === '/' : page.url.pathname.startsWith(href);
 	}
 
-	const clock = $derived.by(() => {
-		if (countdownMs === null) return null;
-		const total = Math.max(0, Math.floor(countdownMs / 1000));
-		return { text: formatDuration(total), urgent: total < 300, warn: total < 1200 };
-	});
 </script>
 
 <svelte:window onpointerdown={onWindowPointerDown} onkeydown={onWindowKeyDown} />
@@ -91,22 +80,8 @@
 		</nav>
 
 		<div class="cluster">
-			{#if clock}
-				<span
-					class="clock"
-					class:is-warn={clock.warn && !clock.urgent}
-					class:is-urgent={clock.urgent}
-					aria-label="Time remaining {clock.text}">{clock.text}</span
-				>
-			{:else}
-				{#if streak > 0}
-					<span class="stat" title="Study streak"
-						><span aria-hidden="true">⚡</span> {streak}d</span
-					>
-				{/if}
-				{#if cardsDue > 0}
-					<a class="stat stat--link" href="/cards" title="Cards due">{cardsDue} due</a>
-				{/if}
+			{#if streak > 0}
+				<span class="stat" title="Study streak"><span aria-hidden="true">⚡</span> {streak}d</span>
 			{/if}
 
 			<button
@@ -233,38 +208,6 @@
 		font-variant-numeric: tabular-nums;
 		color: var(--text-2);
 		white-space: nowrap;
-	}
-
-	.stat--link {
-		text-decoration: none;
-	}
-
-	.stat--link:hover {
-		color: var(--brand);
-	}
-
-	.clock {
-		font-family: var(--font-mono);
-		font-size: var(--fs-small);
-		font-weight: 700;
-		font-variant-numeric: tabular-nums;
-		background: var(--bg-2);
-		border: 1px solid var(--border);
-		border-radius: var(--r-ctl);
-		padding: 2px 10px;
-		color: var(--text-1);
-	}
-
-	.clock.is-warn {
-		background: var(--flag-soft);
-		border-color: var(--flag);
-		color: var(--flag-ink);
-	}
-
-	.clock.is-urgent {
-		background: var(--err-soft);
-		border-color: var(--err);
-		color: var(--err);
 	}
 
 	.themebtn {

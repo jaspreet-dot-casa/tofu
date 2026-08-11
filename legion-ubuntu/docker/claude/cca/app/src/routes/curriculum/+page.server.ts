@@ -2,14 +2,14 @@ import type { PageServerLoad } from './$types';
 import { DOMAINS, EXAM, domainQuestionShare } from '$lib/data/domains';
 import { SCENARIOS } from '$lib/data/scenarios';
 import { lessonsForTrack } from '$lib/server/content';
-import { completedLessonIds } from '$lib/server/progress';
-import { questionsForScenario } from '$lib/data/questions';
+import { completedLessonIds, overallProgress } from '$lib/server/progress';
 
 export const load: PageServerLoad = async ({ locals }) => {
 	const done = completedLessonIds(locals.profileId);
 
 	return {
 		exam: EXAM,
+		overall: overallProgress(done),
 		orientation: lessonsForTrack('orientation').map((l) => ({
 			slug: l.slug,
 			title: l.title,
@@ -30,8 +30,7 @@ export const load: PageServerLoad = async ({ locals }) => {
 			slug: s.slug,
 			title: s.title,
 			premise: s.premise,
-			domains: s.domains,
-			questionCount: questionsForScenario(s.id).length
+			domains: s.domains
 		}))
 	};
 };

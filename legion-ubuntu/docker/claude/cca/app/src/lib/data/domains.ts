@@ -1,9 +1,9 @@
 /**
  * The five exam domains, in blueprint order (descending weight).
  *
- * The weights are not decoration — they drive the readiness score, the number of
- * questions a mock exam draws per domain, and the physical track width of every
- * domain meter in the UI. They must sum to 100.
+ * The weights are not decoration — they set the physical track width of every domain
+ * meter in the UI, so a domain worth 27% of the exam reads as nearly twice the study
+ * commitment of one worth 15%. They must sum to 100.
  */
 
 export type DomainId = 'd1' | 'd2' | 'd3' | 'd4' | 'd5';
@@ -103,32 +103,29 @@ export function trackOrder(track: Track): number {
 	return track === 'orientation' ? 0 : DOMAINS.findIndex((d) => d.id === track) + 1;
 }
 
-/** Total scaled points a perfect candidate earns above the 100-point floor. */
-export const SCORE_FLOOR = 100;
-export const SCORE_CEILING = 1000;
-export const SCORE_RANGE = SCORE_CEILING - SCORE_FLOOR; // 900
-export const PASS_SCORE = 720;
-
-/** Exam logistics, surfaced in the UI and used to size mock exams. */
+/**
+ * Exam logistics. Facts about the real exam, shown so a reader knows what they are
+ * studying towards — this app does not simulate any of it.
+ */
 export const EXAM = {
 	questionCount: 60,
 	minutes: 120,
-	passScore: PASS_SCORE,
+	passScore: 720,
+	scoreFloor: 100,
+	scoreCeiling: 1000,
 	scenariosDrawn: 4,
-	scenarioPoolSize: 6,
+	/**
+	 * Eight, not six. Candidate reports collected in the community exam guide name a
+	 * seventh brief (conversational architecture) and an eighth (agentic AI tools) that
+	 * no published question set covers yet. The study pool below is therefore smaller
+	 * than the real one — see the blueprint lesson.
+	 */
+	scenarioPoolSize: 8,
 	costUsd: 125,
 	validityMonths: 12
 } as const;
 
-/**
- * The most scaled points a domain can ever contribute — its bracket ceiling on the
- * score rail. D1 tops out at 243 of the 900 available points.
- */
-export function domainCeiling(domain: Domain): number {
-	return Math.round((domain.weight / 100) * SCORE_RANGE);
-}
-
-/** How many of a 60-question mock come from this domain. */
+/** Roughly how many of the 60 questions come from this domain, for planning study time. */
 export function domainQuestionShare(domain: Domain, total = EXAM.questionCount): number {
 	return Math.round((domain.weight / 100) * total);
 }

@@ -74,6 +74,6 @@ other four lean on.
 
 ::: trap Grinding practice questions is not revision
 Practice questions are a *thermometer*. They tell you which domain is losing you marks. The
-actual repair happens in the lessons and in the cookbook — not in doing another forty
+actual repair happens in the chapters here and in the cookbook — not in doing another forty
 questions and hoping your average drifts up.
 :::

@@ -7,14 +7,7 @@
  * depends on the other.
  */
 
-import type { Domain, DomainId } from './data/domains';
-
-/** One segment of the Score Rail: what a domain contributes and what it could. */
-export interface RailSegment {
-	domain: Domain;
-	points: number;
-	ceiling: number;
-}
+import type { Domain } from './data/domains';
 
 export interface TocEntry {
 	id: string;
@@ -25,32 +18,22 @@ export interface TocEntry {
 export interface ActivityDay {
 	day: string;
 	lessons: number;
-	questions: number;
-	cards: number;
 	active: boolean;
 }
 
-export type QuizMode = 'mock' | 'domain' | 'scenario';
-
-/** The four spaced-repetition grades, in the order the UI lists them. */
-export const GRADES = ['again', 'hard', 'good', 'easy'] as const;
-
-export type Grade = (typeof GRADES)[number];
-
-/** A finished paper, as the dashboard and practice pages list it. */
-export interface AttemptSummary {
-	id: string;
-	mode: QuizMode;
-	label: string;
-	score: number | null;
-	passed: boolean;
+/**
+ * How far through a set of lessons the reader is. Used at three scales — one domain,
+ * the orientation track, and the curriculum as a whole — so it carries counts rather
+ * than a percentage, and lets the view decide how to render them.
+ */
+export interface Completion {
+	done: number;
+	total: number;
+	/** 0–100, rounded. Zero when there is nothing to complete. */
+	percent: number;
 }
 
-/** Per-domain result of one attempt. */
-export interface DomainBreakdown {
-	domain: DomainId;
-	correct: number;
-	total: number;
-	points: number;
-	ceiling: number;
+/** A domain's row in the progress panel. */
+export interface DomainProgress extends Completion {
+	domain: Domain;
 }

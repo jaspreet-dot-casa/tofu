@@ -28,7 +28,6 @@
 				{#each data.domains as domain (domain.id)}
 					<span class="chip chip--{domain.accent}">{domain.code} · {domain.weight}%</span>
 				{/each}
-				<span class="mono">{data.questionCount} questions</span>
 			</p>
 			<p class="lede">{data.scenario.premise}</p>
 		</header>
@@ -47,13 +46,6 @@
 			<div class="prose">{@html data.html}</div>
 		{/if}
 
-		<footer class="reader__foot">
-			<form method="POST" action="/quiz?/start">
-				<input type="hidden" name="mode" value="scenario" />
-				<input type="hidden" name="target" value={data.scenario.id} />
-				<button class="btn btn--primary" type="submit">Drill this scenario</button>
-			</form>
-		</footer>
 	</article>
 
 	<aside class="reader__aside">
