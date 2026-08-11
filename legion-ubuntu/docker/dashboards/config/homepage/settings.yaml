@@ -2,36 +2,59 @@
 # For configuration options and examples, please see:
 # https://gethomepage.dev/configs/settings/
 
-title: Home Dashboard
+title: Glorzo
+description: Homelab dashboard
 
 theme: dark
 color: slate
 
 background:
-  image: https://images.unsplash.com/photo-1544306094-e2dcf9479da3?w=1920
+  image: https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=2400&q=80
   blur: sm
-  saturate: 75
-  brightness: 50
-  opacity: 50
+  saturate: 60
+  brightness: 40
+  opacity: 40
 
-cardBlur: md
-
+cardBlur: sm
 headerStyle: clean
+hideVersion: true
+showStats: true
+statusStyle: dot
+useEqualHeights: true
 
+quicklaunch:
+  searchDescriptions: true
+  hideInternetSearch: false
+  showSearchSuggestions: true
+  hideVisitURL: false
+
+# Group order on the page. Each group renders as a row of cards.
 layout:
   Media:
     style: row
-    columns: 3
+    columns: 4
     icon: mdi-play-circle
   Downloads:
     style: row
     columns: 3
     icon: mdi-download
-  Infrastructure:
+  AI:
+    style: row
+    columns: 2
+    icon: mdi-brain
+  Files & Photos:
+    style: row
+    columns: 4
+    icon: mdi-folder-multiple-image
+  Apps:
     style: row
     columns: 3
+    icon: mdi-apps
+  Infrastructure:
+    style: row
+    columns: 4
     icon: mdi-server
-  Authentication:
+  Identity:
     style: row
     columns: 2
     icon: mdi-shield-lock

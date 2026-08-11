@@ -2,12 +2,9 @@
 # For configuration options and examples, please see:
 # https://gethomepage.dev/configs/info-widgets/
 
-- logo:
-    icon: https://cdn.jsdelivr.net/gh/walkxcode/dashboard-icons/png/homepage.png
-
 - greeting:
     text_size: xl
-    text: Welcome Home
+    text: glorzo
 
 - datetime:
     text_size: l
@@ -16,14 +13,30 @@
       timeStyle: short
       hour12: true
 
+# Host CPU / RAM / temp / uptime. `/` here is the host root, bind-mounted
+# read-only into the container by compose.yml.
+- resources:
+    label: system
+    cpu: true
+    memory: true
+    cputemp: true
+    tempmin: 20
+    tempmax: 90
+    uptime: true
+    refresh: 5000
+
+# Storage. Each path must be bind-mounted into the homepage container
+# (see the volumes: block in compose.yml) or it reports 0 B.
+- resources:
+    label: storage
+    disk:
+      - /
+      - /mnt/ssd2
+      - /mnt/hdd1
+    expanded: true
+    refresh: 30000
+
 - search:
     provider: google
     target: _blank
-
-- resources:
-    cpu: true
-    memory: true
-    disk: /
-    cputemp: true
-    uptime: true
-    refresh: 3000
+    showSearchSuggestions: true

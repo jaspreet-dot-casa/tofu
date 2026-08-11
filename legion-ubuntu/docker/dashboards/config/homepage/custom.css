@@ -1,0 +1,42 @@
+/* Homepage custom styles — loaded automatically from /app/config/custom.css */
+
+/* Group headings: quieter, wider-tracked, with a hairline rule so the rows
+   read as distinct bands instead of one long list of cards. */
+#page_container h2 {
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  opacity: 0.65;
+  padding-bottom: 0.4rem;
+  border-bottom: 1px solid rgb(148 163 184 / 0.18);
+}
+
+/* Service cards: slightly softer corners and a visible border, so cards stay
+   legible against the background photo. */
+.service-card,
+#information-widgets > div {
+  border-radius: 0.6rem;
+  border: 1px solid rgb(148 163 184 / 0.12);
+  transition:
+    border-color 150ms ease,
+    transform 150ms ease;
+}
+
+.service-card:hover {
+  border-color: rgb(148 163 184 / 0.35);
+  transform: translateY(-1px);
+}
+
+/* Tighten the header block a little. */
+#information-widgets {
+  padding-bottom: 0.75rem;
+}
+
+/* Docker CPU/RAM stat strip: de-emphasise so it supports the card rather
+   than competing with the service name. */
+.docker-status,
+.service-stats {
+  opacity: 0.75;
+  font-variant-numeric: tabular-nums;
+}

@@ -1,67 +1,168 @@
 ---
 # For configuration options and examples, please see:
 # https://gethomepage.dev/configs/services/
+#
+# `server: my-docker` + `container:` gives each card a live status dot and
+# CPU/memory stats (see docker.yaml). Widgets that need an API key are left
+# commented out — fill the matching HOMEPAGE_VAR_* in .env, then uncomment.
 
 - Media:
     - Plex:
         icon: plex.png
-        href: "{{HOMEPAGE_VAR_PLEX_URL}}"
-        description: Media streaming server
-    - Immich:
-        icon: immich.png
-        href: "https://photos.{{HOMEPAGE_VAR_DOMAIN}}"
-        description: Photo & video backup
-    - Media Manager:
+        href: "{{HOMEPAGE_VAR_BASE_URL}}:32400/web"
+        description: Media streaming (host network)
+        server: my-docker
+        container: plex
+        # Needs HOMEPAGE_VAR_PLEX_TOKEN — see README for how to get it.
+        # widget:
+        #   type: plex
+        #   url: "{{HOMEPAGE_VAR_BASE_URL}}:32400"
+        #   key: "{{HOMEPAGE_VAR_PLEX_TOKEN}}"
+
+    - Jellyfin:
+        icon: jellyfin.png
+        href: "https://jellyfin.{{HOMEPAGE_VAR_DOMAIN}}"
+        description: Media streaming, NVIDIA transcode
+        server: my-docker
+        container: jellyfin
+        # Needs HOMEPAGE_VAR_JELLYFIN_API_KEY — Dashboard → API Keys in Jellyfin.
+        # widget:
+        #   type: jellyfin
+        #   url: http://jellyfin:8096
+        #   key: "{{HOMEPAGE_VAR_JELLYFIN_API_KEY}}"
+        #   enableBlocks: true
+        #   enableNowPlaying: true
+
+    - Cinephage:
+        icon: mdi-filmstrip-box-multiple
+        href: "https://cine.{{HOMEPAGE_VAR_DOMAIN}}"
+        description: Library automation (VPN-routed)
+        server: my-docker
+        container: cinephage
+
+    - MediaManager:
         icon: mdi-movie-search
         href: "https://mediamanager.{{HOMEPAGE_VAR_DOMAIN}}"
-        description: Media discovery & management
+        description: Media discovery — superseded by Cinephage
+        server: my-docker
+        container: mediamanager_server
 
 - Downloads:
     - qBittorrent:
         icon: qbittorrent.png
         href: "https://qbit.{{HOMEPAGE_VAR_DOMAIN}}"
-        description: Torrent client
+        description: Torrent client (VPN-routed)
         server: my-docker
         container: qbittorrent
-        widget:
-          type: qbittorrent
-          url: http://gluetun:13001
-          username: "{{HOMEPAGE_VAR_QBITTORRENT_USERNAME}}"
-          password: "{{HOMEPAGE_VAR_QBITTORRENT_PASSWORD}}"
+        # Needs HOMEPAGE_VAR_QBITTORRENT_USERNAME / _PASSWORD in .env.
+        # widget:
+        #   type: qbittorrent
+        #   url: http://gluetun:13001
+        #   username: "{{HOMEPAGE_VAR_QBITTORRENT_USERNAME}}"
+        #   password: "{{HOMEPAGE_VAR_QBITTORRENT_PASSWORD}}"
+
     - Prowlarr:
         icon: prowlarr.png
         href: "https://prowlarr.{{HOMEPAGE_VAR_DOMAIN}}"
-        description: Indexer manager
+        description: Indexer manager (VPN-routed)
         server: my-docker
         container: prowlarr
+        widget:
+          type: prowlarr
+          url: http://gluetun:9696
+          key: "{{HOMEPAGE_VAR_PROWLARR_API_KEY}}"
+
     - Gluetun:
         icon: gluetun.png
-        href: "#"
-        description: VPN tunnel
+        description: VPN tunnel — qbit, prowlarr, cinephage
         server: my-docker
         container: gluetun
-        widget:
-          type: gluetun
-          url: http://gluetun:8000
 
-- Storage:
-    - FileBrowser:
-        icon: filebrowser.png
-        href: "https://files.{{HOMEPAGE_VAR_DOMAIN}}"
-        description: Web-based file manager
+- AI:
+    - Open WebUI:
+        icon: open-webui.png
+        href: "https://chat.{{HOMEPAGE_VAR_DOMAIN}}"
+        description: Chat UI for Ollama
         server: my-docker
-        container: filebrowser
+        container: openwebui
+
+    - Ollama:
+        icon: ollama.png
+        href: "https://ai.{{HOMEPAGE_VAR_DOMAIN}}"
+        description: LLM API, NVIDIA accelerated
+        server: my-docker
+        container: ollama
+
+- Files & Photos:
+    - Immich:
+        icon: immich.png
+        href: "https://photos.{{HOMEPAGE_VAR_DOMAIN}}"
+        description: Photo & video backup
+        server: my-docker
+        container: immich_server
+        # Needs HOMEPAGE_VAR_IMMICH_API_KEY — Account Settings → API Keys.
+        # widget:
+        #   type: immich
+        #   url: http://immich_server:2283
+        #   key: "{{HOMEPAGE_VAR_IMMICH_API_KEY}}"
+        #   version: 2
+
+    - BoxBox:
+        icon: mdi-folder-open
+        href: "https://boxbox.{{HOMEPAGE_VAR_DOMAIN}}"
+        description: Web file manager
+        server: my-docker
+        container: boxbox
+
+    - SFTPGo:
+        icon: sftpgo.png
+        href: "https://sftp.{{HOMEPAGE_VAR_DOMAIN}}"
+        description: SFTP server — port 2022
+        server: my-docker
+        container: sftpgo
+
+    - Webhost:
+        icon: mdi-web
+        href: "https://web.{{HOMEPAGE_VAR_DOMAIN}}"
+        description: Static site hosting
+        server: my-docker
+        container: webhost
+
+- Apps:
+    - gopodder:
+        icon: mdi-podcast
+        href: "https://gopodder.{{HOMEPAGE_VAR_DOMAIN}}"
+        description: Podcast sync (gPodder API)
+        server: my-docker
+        container: gopodder
+
+    - Loyalt:
+        icon: mdi-card-account-details-star
+        href: "https://loyalt.{{HOMEPAGE_VAR_DOMAIN}}"
+        description: Stamp-card loyalty app
+        server: my-docker
+        container: loyalt-app
+
+    - Firecrawl:
+        icon: mdi-fire
+        href: "https://firecrawl.{{HOMEPAGE_VAR_DOMAIN}}"
+        description: Scraper API
+        server: my-docker
+        container: firecrawl-api-1
 
 - Infrastructure:
     - Traefik:
         icon: traefik.png
         href: "https://traefik.{{HOMEPAGE_VAR_DOMAIN}}"
-        description: Reverse proxy & load balancer
+        description: Reverse proxy & TLS
         server: my-docker
         container: traefik
         widget:
           type: traefik
-          url: http://traefik:8080
+          # The API is not exposed on :8080 (--api.insecure=false), so the
+          # widget goes back through Traefik's own websecure router.
+          url: "https://traefik.{{HOMEPAGE_VAR_DOMAIN}}"
+
     - Glances:
         icon: glances.png
         href: "https://glances.{{HOMEPAGE_VAR_DOMAIN}}"
@@ -71,24 +172,35 @@
         widget:
           type: glances
           url: http://glances:61208
-          metric: cpu
+          version: 4
+          metric: info
+          chart: false
+
     - Arcane:
-        icon: docker.png
+        icon: mdi-docker
         href: "https://arcane.{{HOMEPAGE_VAR_DOMAIN}}"
-        description: Docker project management
+        description: Docker management UI
         server: my-docker
         container: arcane
 
-- Authentication:
+    - Homarr:
+        icon: homarr.png
+        href: "https://dashboard.{{HOMEPAGE_VAR_DOMAIN}}"
+        description: Alternate dashboard
+        server: my-docker
+        container: homarr
+
+- Identity:
     - Pocket ID:
-        icon: authentik.png
+        icon: mdi-account-key
         href: "https://auth.{{HOMEPAGE_VAR_DOMAIN}}"
-        description: Identity provider (OIDC)
+        description: OIDC identity provider
         server: my-docker
         container: pocketid
+
     - TinyAuth:
-        icon: authelia.png
+        icon: mdi-shield-lock
         href: "https://tinyauth.{{HOMEPAGE_VAR_DOMAIN}}"
-        description: Forward auth middleware
+        description: Traefik forward auth
         server: my-docker
         container: tinyauth

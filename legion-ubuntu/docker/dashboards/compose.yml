@@ -7,22 +7,39 @@ services:
     volumes:
       - ./config/homepage:/app/config # Make sure your local config directory exists
       - /var/run/docker.sock:/var/run/docker.sock:ro # (optional) For docker integrations
+      # Bind-mounted so the `resources` disk widgets in widgets.yaml can stat
+      # the host filesystems. Read-only — homepage only calls statfs on these.
+      - /mnt/ssd2:/mnt/ssd2:ro
+      - /mnt/hdd1:/mnt/hdd1:ro
     env_file:
       - ../.env.global
       - ./.env
     environment:
       - HOMEPAGE_VAR_DOMAIN=${DOMAIN}
+      # Without these the entrypoint defaults to 0:0 and chowns ./config/homepage
+      # to root on every start, making the tracked YAML uneditable without sudo.
+      #
+      # PGID is the host's *docker* group (getent group docker), not 1000: the
+      # entrypoint drops privileges with `su-exec $PUID:$PGID`, which clears
+      # supplementary groups — so a `group_add:` here would be discarded and the
+      # process could not read the root:docker-owned socket. Making docker the
+      # primary group is what keeps container status/stats working on every card.
+      # Config files end up tagpro:docker, still owner-writable by tagpro.
+      - PUID=${PUID:-1000}
+      - PGID=${DOCKER_GID:-984}
     networks:
       - dashboard
       - proxy
     restart: unless-stopped
     labels:
       - "traefik.enable=true"
+      # homepage is on two networks — pin the one Traefik should route to.
+      - "traefik.docker.network=proxy"
       - "traefik.http.routers.homepage.rule=Host(`home.${DOMAIN}`)"
       - "traefik.http.routers.homepage.entrypoints=websecure"
       - "traefik.http.routers.homepage.tls=true"
       - "traefik.http.services.homepage.loadbalancer.server.port=3000"
-      - "traefik.http.routers.homepage.middlewares=security-headers@file"
+      - "traefik.http.routers.homepage.middlewares=tinyauth@docker,security-headers@file"
 
   homarr:
     image: ghcr.io/homarr-labs/homarr:latest
@@ -42,6 +59,7 @@ services:
       - proxy
     labels:
       - "traefik.enable=true"
+      - "traefik.docker.network=proxy"
       - "traefik.http.routers.homarr.rule=Host(`dashboard.${DOMAIN}`)"
       - "traefik.http.routers.homarr.entrypoints=websecure"
       - "traefik.http.routers.homarr.tls=true"

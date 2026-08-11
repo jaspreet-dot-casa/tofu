@@ -2,17 +2,44 @@
 # For configuration options and examples, please see:
 # https://gethomepage.dev/configs/bookmarks
 
+- Homelab:
+    - Traefik Docs:
+        - abbr: TR
+          icon: traefik.png
+          href: https://doc.traefik.io/traefik/
+    - Homepage Docs:
+        - abbr: HP
+          icon: homepage.png
+          href: https://gethomepage.dev/configs/services/
+    - Dashboard Icons:
+        - abbr: IC
+          icon: mdi-image-multiple
+          href: https://dashboardicons.com/
+    - LinuxServer Docs:
+        - abbr: LS
+          icon: mdi-book-open-variant
+          href: https://docs.linuxserver.io/
+
 - Developer:
-    - Github:
+    - GitHub:
         - abbr: GH
+          icon: github.png
           href: https://github.com/
+    - Docker Hub:
+        - abbr: DH
+          icon: docker.png
+          href: https://hub.docker.com/
+    - Cloudflare:
+        - abbr: CF
+          icon: cloudflare.png
+          href: https://dash.cloudflare.com/
 
-- Social:
-    - Reddit:
-        - abbr: RE
-          href: https://reddit.com/
-
-- Entertainment:
+- Everyday:
     - YouTube:
         - abbr: YT
+          icon: youtube.png
           href: https://youtube.com/
+    - Reddit:
+        - abbr: RE
+          icon: reddit.png
+          href: https://reddit.com/
