@@ -143,6 +143,13 @@
         server: my-docker
         container: loyalt-app
 
+    - CCA Prep:
+        icon: mdi-school
+        href: "https://cca.{{HOMEPAGE_VAR_DOMAIN}}"
+        description: Claude Certified Architect exam prep
+        server: my-docker
+        container: cca
+
     - Firecrawl:
         icon: mdi-fire
         href: "https://firecrawl.{{HOMEPAGE_VAR_DOMAIN}}"

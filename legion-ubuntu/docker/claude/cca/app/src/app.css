@@ -1,0 +1,869 @@
+/*
+ * CCA Prep — design tokens and base styles.
+ * "Instrument-grade terminal, warm." Funk in the chrome, silence in the prose.
+ *
+ * Token names are verbatim from design-system.md. Dark is primary and is also the
+ * no-JS default; light is a first-class override on :root[data-theme="light"].
+ */
+
+/* ── Fonts: self-hosted latin subsets, zero runtime fetches ─────────────────── */
+
+@font-face {
+	font-family: 'Bricolage Grotesque';
+	font-style: normal;
+	font-weight: 600 800;
+	font-display: swap;
+	src: url(/fonts/bricolage-grotesque-600-800.woff2) format('woff2');
+}
+@font-face {
+	font-family: 'Literata';
+	font-style: normal;
+	font-weight: 400 600;
+	font-display: swap;
+	src: url(/fonts/literata-400-600.woff2) format('woff2');
+}
+@font-face {
+	font-family: 'Literata';
+	font-style: italic;
+	font-weight: 400;
+	font-display: swap;
+	src: url(/fonts/literata-italic-400.woff2) format('woff2');
+}
+@font-face {
+	font-family: 'JetBrains Mono';
+	font-style: normal;
+	font-weight: 400 700;
+	font-display: swap;
+	src: url(/fonts/jetbrains-mono-400-700.woff2) format('woff2');
+}
+
+/* ── Dark theme (default) ───────────────────────────────────────────────────── */
+
+:root {
+	/* surfaces */
+	--bg-0: #191512;
+	--bg-1: #211c17;
+	--bg-2: #2a241e;
+	--border: #3a322a;
+	--border-strong: #4a4036;
+	/* The empty portion of every meter, rail slot, ring and streak dot. On dark it
+	   equals --bg-2; on light it must NOT, or the tracks are white on white. */
+	--track: #2a241e;
+
+	/* text */
+	--text-1: #efe7da;
+	--text-2: #b5a996;
+	--text-3: #8a7e6c;
+
+	/* brand — actions only */
+	--brand: #e07b54;
+	--brand-hover: #ea8f6b;
+	--brand-ink: #241208;
+	--brand-soft: rgba(224, 123, 84, 0.14);
+
+	/* domain accents — never used without a D-label */
+	--d1: #e3a93c;
+	--d2: #4fb8a8;
+	--d3: #b894e6;
+	--d4: #5ea8e8;
+	--d5: #e27d9f;
+	--d1-soft: rgba(227, 169, 60, 0.14);
+	--d2-soft: rgba(79, 184, 168, 0.14);
+	--d3-soft: rgba(184, 148, 230, 0.14);
+	--d4-soft: rgba(94, 168, 232, 0.14);
+	--d5-soft: rgba(226, 125, 159, 0.14);
+
+	/* semantic */
+	--ok: #66bd87;
+	--ok-soft: rgba(102, 189, 135, 0.15);
+	--err: #df5b4a;
+	--err-soft: rgba(223, 91, 74, 0.14);
+	--flag: #f2ce4b;
+	--flag-soft: rgba(242, 206, 75, 0.14);
+	--flag-ink: #f2ce4b;
+	--info: #5ea8e8;
+	--info-soft: rgba(94, 168, 232, 0.14);
+	--pass: var(--ok);
+	--fail: var(--err);
+
+	--focus: #f2e7d5;
+
+	/* type
+	   JetBrains Mono sits at the end of the display and prose stacks as a SYMBOL
+	   fallback: it is the only subset carrying arrows, box-drawing and geometric
+	   shapes, and per-glyph fallback means prose picks them up without the body
+	   text ever changing face. */
+	--font-display: 'Bricolage Grotesque', 'Avenir Next', system-ui, 'JetBrains Mono', sans-serif;
+	--font-prose: 'Literata', Charter, Georgia, 'JetBrains Mono', serif;
+	--font-mono: 'JetBrains Mono', ui-monospace, 'Cascadia Code', Menlo, monospace;
+
+	--fs-label: 0.75rem;
+	--fs-small: 0.875rem;
+	--fs-ui: 1rem;
+	--fs-prose: 1.0625rem;
+	--fs-h3: 1.375rem;
+	--fs-h2: 1.75rem;
+	--fs-h1: clamp(2rem, 1.4rem + 2.2vw, 3rem);
+	--fs-score: clamp(3rem, 2rem + 4.5vw, 5rem);
+
+	/* spacing */
+	--sp-1: 4px;
+	--sp-2: 8px;
+	--sp-3: 12px;
+	--sp-4: 16px;
+	--sp-5: 24px;
+	--sp-6: 32px;
+	--sp-7: 48px;
+	--sp-8: 64px;
+	--sp-9: 96px;
+
+	/* radii */
+	--r-ctl: 6px;
+	--r-card: 10px;
+	--r-pill: 999px;
+
+	/* motion */
+	--dur-1: 120ms;
+	--dur-2: 240ms;
+	--dur-3: 400ms;
+	--dur-rail: 700ms;
+	--ease-std: cubic-bezier(0.2, 0.7, 0.25, 1);
+	--ease-pop: cubic-bezier(0.3, 0.9, 0.3, 1.2);
+
+	/* elevation */
+	--shadow-1: 0 8px 28px rgba(0, 0, 0, 0.35);
+
+	/* layout */
+	--maxw: 1120px;
+	color-scheme: dark;
+}
+
+/* ── Light theme ────────────────────────────────────────────────────────────── */
+
+:root[data-theme='light'] {
+	--bg-0: #f4efe6;
+	--bg-1: #fcf9f3;
+	--bg-2: #ffffff;
+	--border: #ddd3c2;
+	--border-strong: #c2b49e;
+	--track: #eae2d3;
+
+	--text-1: #2a241c;
+	--text-2: #5c5344;
+	--text-3: #8a7e6c;
+
+	--brand: #b14e28;
+	--brand-hover: #9a401d;
+	--brand-ink: #ffffff;
+	--brand-soft: rgba(177, 78, 40, 0.1);
+
+	--d1: #8f6510;
+	--d2: #177e6e;
+	--d3: #7c4fc4;
+	--d4: #2270b8;
+	--d5: #b44970;
+	--d1-soft: rgba(143, 101, 16, 0.1);
+	--d2-soft: rgba(23, 126, 110, 0.1);
+	--d3-soft: rgba(124, 79, 196, 0.1);
+	--d4-soft: rgba(34, 112, 184, 0.1);
+	--d5-soft: rgba(180, 73, 112, 0.1);
+
+	--ok: #1f7a46;
+	--ok-soft: rgba(31, 122, 70, 0.11);
+	--err: #c23a2b;
+	--err-soft: rgba(194, 58, 43, 0.1);
+	--flag: #c79a00;
+	--flag-soft: #f6e9b8;
+	--flag-ink: #6e5500;
+	--info: #2270b8;
+	--info-soft: rgba(34, 112, 184, 0.1);
+
+	--focus: #35281b;
+	--shadow-1: 0 8px 28px rgba(74, 56, 34, 0.16);
+
+	color-scheme: light;
+}
+
+/* ── Reset / base ───────────────────────────────────────────────────────────── */
+
+*,
+*::before,
+*::after {
+	box-sizing: border-box;
+}
+
+html {
+	-webkit-text-size-adjust: 100%;
+}
+
+body {
+	margin: 0;
+	background: var(--bg-0);
+	color: var(--text-1);
+	font-family: var(--font-display);
+	font-size: var(--fs-ui);
+	font-weight: 600;
+	line-height: 1.55;
+	/* The page itself never scrolls sideways; wide children scroll internally. */
+	overflow-x: hidden;
+}
+
+h1,
+h2,
+h3,
+h4 {
+	margin: 0;
+	font-family: var(--font-display);
+	line-height: 1.2;
+	font-weight: 700;
+}
+
+a {
+	color: var(--brand);
+	text-underline-offset: 3px;
+}
+a:hover {
+	color: var(--brand-hover);
+}
+
+button {
+	font: inherit;
+	color: inherit;
+}
+
+img,
+svg {
+	max-width: 100%;
+}
+
+:focus-visible {
+	outline: 2px solid var(--focus);
+	outline-offset: 2px;
+}
+
+::selection {
+	background: var(--brand-soft);
+}
+
+/* ── Layout helpers ─────────────────────────────────────────────────────────── */
+
+.shell {
+	max-width: var(--maxw);
+	margin: 0 auto;
+	padding: var(--sp-6) var(--sp-5) var(--sp-9);
+}
+
+@media (max-width: 640px) {
+	.shell {
+		padding: var(--sp-5) var(--sp-4) var(--sp-8);
+	}
+}
+
+.stack > * + * {
+	margin-top: var(--sp-5);
+}
+
+/* --eyebrow-ink lets a domain-coloured or status-coloured label reuse this rather
+   than re-typing all six declarations. */
+.eyebrow {
+	font-family: var(--font-mono);
+	font-size: var(--fs-label);
+	font-weight: 700;
+	letter-spacing: 0.08em;
+	text-transform: uppercase;
+	color: var(--eyebrow-ink, var(--text-3));
+	margin: 0 0 var(--sp-2);
+}
+
+.list-reset {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+}
+
+.actions {
+	display: flex;
+	gap: var(--sp-3);
+	flex-wrap: wrap;
+}
+
+/* Secondary prose: notes, summaries, premises. The quieter sibling of .prose. */
+.prose-note {
+	font-family: var(--font-prose);
+	font-size: var(--fs-small);
+	font-weight: 400;
+	line-height: 1.65;
+	color: var(--text-2);
+	max-width: 66ch;
+}
+
+.mono {
+	font-family: var(--font-mono);
+	font-variant-numeric: tabular-nums;
+}
+
+.page-title {
+	font-size: var(--fs-h1);
+	font-weight: 800;
+	letter-spacing: -0.02em;
+}
+
+.lede {
+	font-family: var(--font-prose);
+	font-size: var(--fs-prose);
+	font-weight: 400;
+	line-height: 1.7;
+	color: var(--text-2);
+	max-width: 66ch;
+	margin: var(--sp-3) 0 0;
+}
+
+.section-head {
+	display: flex;
+	align-items: baseline;
+	justify-content: space-between;
+	gap: var(--sp-4);
+	flex-wrap: wrap;
+	margin-bottom: var(--sp-4);
+}
+
+.section-head h2 {
+	font-size: var(--fs-h2);
+}
+
+/* ── Card ───────────────────────────────────────────────────────────────────── */
+
+.card {
+	background: var(--bg-1);
+	border: 1px solid var(--border);
+	border-radius: var(--r-card);
+	padding: var(--sp-5);
+}
+
+a.card,
+.card--link {
+	display: block;
+	color: inherit;
+	text-decoration: none;
+	transition:
+		border-color var(--dur-1) var(--ease-std),
+		transform var(--dur-1) var(--ease-std);
+}
+
+a.card:hover,
+.card--link:hover {
+	border-color: var(--border-strong);
+	transform: translateY(-2px);
+	color: inherit;
+}
+
+.card--domain {
+	border-top: 3px solid var(--dc, var(--border-strong));
+}
+
+/* ── Chips ──────────────────────────────────────────────────────────────────── */
+
+.chip {
+	display: inline-flex;
+	align-items: center;
+	gap: var(--sp-1);
+	font-family: var(--font-mono);
+	font-size: var(--fs-label);
+	font-weight: 700;
+	letter-spacing: 0.06em;
+	text-transform: uppercase;
+	border-radius: var(--r-pill);
+	padding: 3px 10px;
+	border: 1px solid transparent;
+	white-space: nowrap;
+	font-variant-numeric: tabular-nums;
+}
+
+.chip--neutral {
+	background: var(--bg-2);
+	color: var(--text-2);
+	border-color: var(--border);
+}
+.chip--ok {
+	background: var(--ok-soft);
+	color: var(--ok);
+	border-color: var(--ok);
+}
+.chip--err {
+	background: var(--err-soft);
+	color: var(--err);
+	border-color: var(--err);
+}
+.chip--flag {
+	background: var(--flag-soft);
+	color: var(--flag-ink);
+	border-color: var(--flag);
+}
+.chip--d1 {
+	background: var(--d1-soft);
+	color: var(--d1);
+	border-color: var(--d1);
+}
+.chip--d2 {
+	background: var(--d2-soft);
+	color: var(--d2);
+	border-color: var(--d2);
+}
+.chip--d3 {
+	background: var(--d3-soft);
+	color: var(--d3);
+	border-color: var(--d3);
+}
+.chip--d4 {
+	background: var(--d4-soft);
+	color: var(--d4);
+	border-color: var(--d4);
+}
+.chip--d5 {
+	background: var(--d5-soft);
+	color: var(--d5);
+	border-color: var(--d5);
+}
+
+/* ── Buttons ────────────────────────────────────────────────────────────────── */
+
+.btn {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: var(--sp-2);
+	font-family: var(--font-display);
+	font-weight: 600;
+	font-size: var(--fs-ui);
+	padding: 10px 18px;
+	border-radius: var(--r-ctl);
+	border: 1px solid transparent;
+	background: none;
+	cursor: pointer;
+	text-decoration: none;
+	transition:
+		background var(--dur-1) var(--ease-std),
+		border-color var(--dur-1) var(--ease-std),
+		color var(--dur-1) var(--ease-std);
+}
+
+.btn:active {
+	transform: translateY(1px);
+}
+
+.btn[disabled],
+.btn[aria-disabled='true'] {
+	opacity: 0.45;
+	cursor: not-allowed;
+}
+
+.btn--sm {
+	padding: 8px 14px;
+	font-size: var(--fs-small);
+}
+
+.btn--primary {
+	background: var(--brand);
+	color: var(--brand-ink);
+}
+.btn--primary:hover {
+	background: var(--brand-hover);
+	color: var(--brand-ink);
+}
+
+.btn--secondary {
+	border-color: var(--border-strong);
+	color: var(--text-1);
+}
+.btn--secondary:hover {
+	background: var(--bg-2);
+	color: var(--text-1);
+}
+
+.btn--ghost {
+	color: var(--text-2);
+}
+.btn--ghost:hover {
+	background: var(--bg-2);
+	color: var(--text-1);
+}
+
+.btn--danger {
+	border-color: var(--err);
+	color: var(--err);
+}
+.btn--danger:hover {
+	background: var(--err-soft);
+	color: var(--err);
+}
+
+/* ── Prose (lesson reader) — never tinted by status colours ─────────────────── */
+
+.prose {
+	font-family: var(--font-prose);
+	font-size: var(--fs-prose);
+	font-weight: 400;
+	line-height: 1.7;
+	color: var(--text-1);
+	max-width: 66ch;
+}
+
+.prose > * + * {
+	margin-top: var(--sp-4);
+}
+
+.prose h2 {
+	font-family: var(--font-display);
+	font-size: var(--fs-h2);
+	margin-top: var(--sp-7);
+	scroll-margin-top: 72px;
+}
+
+.prose h3 {
+	font-family: var(--font-display);
+	font-size: var(--fs-h3);
+	margin-top: var(--sp-6);
+	scroll-margin-top: 72px;
+}
+
+.prose p,
+.prose li {
+	margin: 0;
+}
+
+.prose ul,
+.prose ol {
+	padding-left: 1.3em;
+}
+
+.prose li + li {
+	margin-top: var(--sp-2);
+}
+
+.prose strong {
+	font-weight: 600;
+	color: var(--text-1);
+}
+
+.prose blockquote {
+	margin: 0;
+	padding-left: var(--sp-4);
+	border-left: 3px solid var(--border-strong);
+	color: var(--text-2);
+	font-style: italic;
+}
+
+.heading-anchor {
+	color: var(--text-3);
+	text-decoration: none;
+	margin-left: var(--sp-2);
+	opacity: 0;
+	transition: opacity var(--dur-1) var(--ease-std);
+}
+
+.prose h2:hover .heading-anchor,
+.prose h3:hover .heading-anchor,
+.heading-anchor:focus-visible {
+	opacity: 1;
+}
+
+/* Tables inside prose scroll internally rather than widening the page. */
+.prose table {
+	width: 100%;
+	border-collapse: collapse;
+	font-family: var(--font-display);
+	font-size: var(--fs-small);
+	font-weight: 600;
+}
+
+.prose :is(th, td) {
+	text-align: left;
+	padding: var(--sp-2) var(--sp-3);
+	border-bottom: 1px solid var(--border);
+	vertical-align: top;
+}
+
+.prose th {
+	font-family: var(--font-mono);
+	font-size: var(--fs-label);
+	letter-spacing: 0.06em;
+	text-transform: uppercase;
+	color: var(--text-3);
+}
+
+/* ── Callouts — styled from plain markdown-it-container output ──────────────── */
+
+.callout {
+	border-radius: var(--r-card);
+	border-left: 3px solid var(--cl, var(--border-strong));
+	background: var(--cl-soft, var(--bg-1));
+	padding: var(--sp-4) var(--sp-5);
+}
+
+.callout--key {
+	--cl: var(--info);
+	--cl-soft: var(--info-soft);
+}
+.callout--trap {
+	--cl: var(--err);
+	--cl-soft: var(--err-soft);
+}
+.callout--tip {
+	--cl: var(--d1);
+	--cl-soft: var(--d1-soft);
+}
+
+.callout__title {
+	font-family: var(--font-mono);
+	font-size: var(--fs-label);
+	font-weight: 700;
+	letter-spacing: 0.08em;
+	text-transform: uppercase;
+	color: var(--cl);
+	margin: 0 0 var(--sp-2);
+}
+
+.callout__title::before {
+	margin-right: var(--sp-2);
+}
+
+.callout--key .callout__title::before {
+	content: '▪';
+}
+.callout--trap .callout__title::before {
+	content: '⚠';
+}
+.callout--tip .callout__title::before {
+	content: '◆';
+}
+
+.callout > * + * {
+	margin-top: var(--sp-3);
+}
+
+.callout p,
+.callout li {
+	color: var(--text-1);
+}
+
+/* ── Code ───────────────────────────────────────────────────────────────────── */
+
+code {
+	font-family: var(--font-mono);
+	font-size: 0.9em;
+}
+
+:not(pre) > code {
+	background: var(--bg-2);
+	border: 1px solid var(--border);
+	border-radius: 4px;
+	padding: 0.1em 0.35em;
+}
+
+pre.code {
+	position: relative;
+	background: var(--bg-2);
+	border: 1px solid var(--border);
+	border-radius: var(--r-card);
+	padding: var(--sp-4) var(--sp-5);
+	overflow-x: auto;
+	font-size: var(--fs-small);
+	line-height: 1.6;
+}
+
+pre.code > code {
+	font-size: inherit;
+	background: none;
+	border: none;
+	padding: 0;
+}
+
+/* Language tag from the data attribute — no markup of its own. */
+pre.code::before {
+	content: attr(data-lang);
+	position: absolute;
+	top: var(--sp-2);
+	right: var(--sp-3);
+	font-family: var(--font-mono);
+	font-size: var(--fs-label);
+	font-weight: 700;
+	letter-spacing: 0.08em;
+	text-transform: uppercase;
+	color: var(--text-3);
+	pointer-events: none;
+}
+
+pre.code[data-lang='text']::before {
+	content: none;
+}
+
+/* highlight.js — mapped onto the palette rather than shipping its own theme. */
+.hljs-comment,
+.hljs-quote {
+	color: var(--text-3);
+	font-style: italic;
+}
+.hljs-keyword,
+.hljs-selector-tag,
+.hljs-literal,
+.hljs-type {
+	color: var(--d3);
+}
+.hljs-string,
+.hljs-attr,
+.hljs-addition {
+	color: var(--d2);
+}
+.hljs-number,
+.hljs-symbol,
+.hljs-bullet {
+	color: var(--d1);
+}
+.hljs-title,
+.hljs-name,
+.hljs-section,
+.hljs-built_in {
+	color: var(--d4);
+}
+.hljs-attribute,
+.hljs-variable,
+.hljs-template-variable {
+	color: var(--d5);
+}
+.hljs-deletion {
+	color: var(--err);
+}
+.hljs-emphasis {
+	font-style: italic;
+}
+.hljs-strong {
+	font-weight: 700;
+}
+
+/* ── Reader shell ───────────────────────────────────────────────────────────────
+   Shared by the lesson reader and the scenario briefings. Both previously carried
+   their own copy, and the copies had already drifted apart. */
+
+.reader {
+	display: grid;
+	grid-template-columns: minmax(0, 1fr) 220px;
+	gap: var(--sp-7);
+	align-items: start;
+}
+
+.reader__main {
+	min-width: 0;
+}
+
+.crumbs {
+	display: flex;
+	gap: var(--sp-2);
+	align-items: center;
+	flex-wrap: wrap;
+	font-family: var(--font-mono);
+	font-size: var(--fs-label);
+	color: var(--text-3);
+	margin-bottom: var(--sp-4);
+}
+
+.crumbs a {
+	color: var(--text-3);
+	text-decoration: none;
+}
+
+.crumbs a:hover {
+	color: var(--brand);
+}
+
+.reader__head {
+	max-width: 66ch;
+	margin-bottom: var(--sp-6);
+}
+
+.reader__meta {
+	display: flex;
+	align-items: center;
+	gap: var(--sp-3);
+	flex-wrap: wrap;
+	margin: var(--sp-4) 0 0;
+	font-size: var(--fs-label);
+	color: var(--text-3);
+}
+
+.reader__foot {
+	max-width: 66ch;
+	margin-top: var(--sp-8);
+	padding-top: var(--sp-5);
+	border-top: 1px solid var(--border);
+}
+
+@media (max-width: 880px) {
+	.reader {
+		grid-template-columns: minmax(0, 1fr);
+		gap: 0;
+	}
+}
+
+/* ── Answer review ──────────────────────────────────────────────────────────────
+   The per-distractor autopsy list, shared by the drill runner and the results
+   review. This list is the product's whole point, so it gets room. */
+
+.whywrong {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+}
+
+.whywrong li {
+	display: flex;
+	gap: var(--sp-3);
+	font-family: var(--font-prose);
+	font-size: var(--fs-small);
+	font-weight: 400;
+	line-height: 1.65;
+	color: var(--text-2);
+	max-width: 66ch;
+}
+
+.whywrong li + li {
+	margin-top: var(--sp-4);
+}
+
+.whywrong__key {
+	font-family: var(--font-mono);
+	font-size: var(--fs-label);
+	font-weight: 700;
+	color: var(--text-3);
+	flex: none;
+	padding-top: 2px;
+}
+
+/* ── Utility ────────────────────────────────────────────────────────────────── */
+
+.empty {
+	text-align: center;
+	padding: var(--sp-8) var(--sp-5);
+}
+
+.empty h2 {
+	font-size: var(--fs-h2);
+	font-weight: 700;
+}
+
+.empty p {
+	color: var(--text-2);
+	margin: var(--sp-3) 0 var(--sp-5);
+}
+
+/* ── Motion budget ──────────────────────────────────────────────────────────── */
+
+@media (prefers-reduced-motion: reduce) {
+	*,
+	*::before,
+	*::after {
+		animation-duration: 0.01ms !important;
+		animation-iteration-count: 1 !important;
+		transition-duration: 0.01ms !important;
+		scroll-behavior: auto !important;
+	}
+}

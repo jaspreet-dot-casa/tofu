@@ -1,0 +1,69 @@
+services:
+  cca:
+    build:
+      context: ./app
+      dockerfile: Dockerfile
+    image: cca-prep:local
+    container_name: cca
+    restart: unless-stopped
+    env_file:
+      - .env
+    networks:
+      - proxy
+    environment:
+      - TZ=${TZ:-Australia/Melbourne}
+      - NODE_ENV=production
+      - PORT=3000
+      - CCA_DB_PATH=/data/cca.db
+      # adapter-node needs to know its public origin to accept form submissions
+      # through Traefik, otherwise every POST is rejected as cross-site.
+      - ORIGIN=https://cca.${DOMAIN}
+      # Fail the deploy rather than start with an unsigned-in-practice cookie —
+      # same guard boxbox uses for its JWT secret.
+      - COOKIE_SECRET=${COOKIE_SECRET:?Set COOKIE_SECRET in .env — openssl rand -base64 48}
+    volumes:
+      - ${CCA_DATA_PATH}:/data
+    security_opt:
+      - no-new-privileges:true
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+        reservations:
+          memory: 64M
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=proxy"
+
+      - "traefik.http.services.cca.loadbalancer.server.port=3000"
+
+      - "traefik.http.routers.cca.rule=Host(`cca.${DOMAIN}`)"
+      - "traefik.http.routers.cca.entrypoints=websecure"
+      - "traefik.http.routers.cca.tls=true"
+      - "traefik.http.routers.cca.service=cca"
+
+      # Public, no tinyauth — the app has no login by design and holds nothing but a
+      # study history. Same middleware pair as webhost/.
+      - "traefik.http.routers.cca.middlewares=security-headers@file,gzip@file"
+
+  # Continuously replicates the SQLite WAL to a second physical disk.
+  # Restoring is NOT a one-liner — litestream refuses to overwrite an existing file
+  # and writes the restored copy as root. See README.md "Restoring".
+  litestream:
+    image: litestream/litestream:0.3.13
+    container_name: cca-litestream
+    restart: unless-stopped
+    depends_on:
+      - cca
+    command: replicate -config /etc/litestream.yml
+    environment:
+      - TZ=${TZ:-Australia/Melbourne}
+    volumes:
+      - ${CCA_DATA_PATH}:/data
+      - ${CCA_BACKUP_PATH}:/backups
+      - ./litestream.yml:/etc/litestream.yml:ro
+
+networks:
+  proxy:
+    name: proxy
+    external: true

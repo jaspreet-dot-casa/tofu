@@ -1,0 +1,3 @@
+.env
+# Anchored: an unanchored `data` also matches app/src/lib/data/, which is source.
+/data

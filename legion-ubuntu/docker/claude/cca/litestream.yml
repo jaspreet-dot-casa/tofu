@@ -1,0 +1,9 @@
+dbs:
+  - path: /data/cca.db
+    replicas:
+      - type: file
+        path: /backups/cca
+        # Full snapshot once a day; WAL segments stream continuously between them.
+        snapshot-interval: 24h
+        # Keep 30 days of restorable history.
+        retention: 720h

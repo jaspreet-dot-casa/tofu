@@ -36,6 +36,7 @@ Homelab Docker stack running on an Ubuntu server (legion-ubuntu). All services s
 | `arcane/`    | `arcane.glorzo.jaspreet.casa`          | built-in          | Docker management UI |
 | `boxbox/`    | `boxbox.glorzo.jaspreet.casa`          | tinyauth          | Web file manager |
 | `webhost/`   | `web.glorzo.jaspreet.casa`             | none (public)     | Static site hosting; Caddy serves a host dir (`SITE_PATH`), directory browsing on |
+| `claude/cca/`| `cca.glorzo.jaspreet.casa`             | none (anon cookie)| Claude Certified Architect exam prep. **Built from source** in `claude/cca/app/` (SvelteKit, adapter-node). No login by design — progress keys off a signed anonymous cookie that doubles as a cross-device sync code. SQLite via `node:sqlite` + Litestream |
 
 ---
 

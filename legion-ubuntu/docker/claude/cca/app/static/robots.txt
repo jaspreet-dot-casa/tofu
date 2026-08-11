@@ -1,0 +1,4 @@
+# A private study tracker. Traefik's security-headers middleware already sends
+# X-Robots-Tag: none for this host; this keeps the two consistent.
+User-agent: *
+Disallow: /

@@ -25,6 +25,7 @@ netup:
 compose-down:
 	cd arcane && docker compose down
 	cd boxbox && docker compose down
+	cd claude/cca && docker compose down
 	cd dashboards && docker compose down
 	cd glances && docker compose down
 	cd gopodder && docker compose down
@@ -54,3 +55,4 @@ compose-up:
 	cd dashboards && docker compose up -d
 	cd arcane && docker compose up -d
 	cd webhost && docker compose up -d
+	cd claude/cca && docker compose up -d
