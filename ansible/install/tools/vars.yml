@@ -1,0 +1,21 @@
+---
+brew_packages:
+  - ripgrep
+  - fzf
+  - bat
+  - zoxide
+  - zellij
+  - jq
+  - mise
+  - lazygit
+  - bottom
+  - neovim
+  - starship
+
+# Tools that need shell configuration (must have matching config/<tool>.yml)
+tools_with_config:
+  - fzf
+  - zoxide
+  - mise
+  - neovim
+  - starship

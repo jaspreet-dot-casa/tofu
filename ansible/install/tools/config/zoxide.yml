@@ -1,0 +1,16 @@
+---
+- name: Add zoxide to .bashrc
+  ansible.builtin.blockinfile:
+    path: "{{ ansible_facts['env']['HOME'] }}/.bashrc"
+    marker: "# {mark} ANSIBLE MANAGED: zoxide"
+    block: |
+      eval "$(zoxide init bash)"
+  when: bashrc_st.stat.exists
+
+- name: Add zoxide to .zshrc
+  ansible.builtin.blockinfile:
+    path: "{{ ansible_facts['env']['HOME'] }}/.zshrc"
+    marker: "# {mark} ANSIBLE MANAGED: zoxide"
+    block: |
+      eval "$(zoxide init zsh)"
+  when: zshrc_st.stat.exists

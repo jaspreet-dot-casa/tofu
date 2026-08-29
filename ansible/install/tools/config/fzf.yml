@@ -1,0 +1,16 @@
+---
+- name: Add fzf to .bashrc
+  ansible.builtin.blockinfile:
+    path: "{{ ansible_facts['env']['HOME'] }}/.bashrc"
+    marker: "# {mark} ANSIBLE MANAGED: fzf"
+    block: |
+      eval "$(fzf --bash)"
+  when: bashrc_st.stat.exists
+
+- name: Add fzf to .zshrc
+  ansible.builtin.blockinfile:
+    path: "{{ ansible_facts['env']['HOME'] }}/.zshrc"
+    marker: "# {mark} ANSIBLE MANAGED: fzf"
+    block: |
+      source <(fzf --zsh)
+  when: zshrc_st.stat.exists
