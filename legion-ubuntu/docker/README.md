@@ -6,10 +6,10 @@ Media server stack with Traefik reverse proxy and Pocket ID SSO authentication.
 
 ```bash
 # Create networks
-make netup
+just netup
 
 # Deploy all services
-make compose-up
+just compose-up
 ```
 
 ## Service Access
@@ -34,19 +34,48 @@ Plex remains on host network (unchanged).
 ## First-Time Setup
 
 1. Follow individual README files in each directory for initial configuration
-2. Deploy services: `make compose-up`
+2. Deploy services: `just compose-up`
 3. Configure Pocket ID: Access `https://auth.${DOMAIN}` and create admin account
 
 ## Management
 
 ```bash
-make compose-up      # Start all services
-make compose-down    # Stop all services
+just                 # List all recipes
+just netup           # Create Docker networks
+just compose-up      # Start all services
+just compose-down    # Stop all services
 ```
+
+## Container logging
+
+Log size is capped daemon-wide, not per service. `daemon.json` sets the `json-file`
+driver to `max-size: 50m` / `max-file: 3`, bounding every container on the host to
+150 MB — including any started outside these compose files.
+
+```bash
+just docker-logging-setup
+```
+
+This exists because an uncapped log once filled the root disk: `mediamanager_server`
+lost its Postgres connection, its taskiq broker retried with no backoff, and the
+resulting traceback spam grew a single log file to 567 GB. Nothing truncates a
+`json-file` log by default, so a crash-looping container will consume the disk.
+
+The recipe **merges** into any existing `/etc/docker/daemon.json` rather than
+overwriting it — this host registers the NVIDIA container runtime there, and Jellyfin
+and Ollama stop seeing the GPU if that key is lost. The merged result is validated with
+`dockerd --validate` while still a temp file, and only installed (after a timestamped
+backup) if it passes, since an invalid daemon.json stops dockerd starting at all. It
+does not restart Docker; apply with `sudo systemctl restart docker` when a full
+container restart is acceptable.
+
+Caps apply to **newly created** containers, so existing ones pick this up when next
+recreated. An already-oversized log file has to be deleted by hand.
 
 See individual directories for detailed setup:
 - `/proxy` - Traefik + Pocket ID
-- `/vpnstack` - MediaManager, qBittorrent, Prowlarr (VPN-routed)
+- `/vpnstack` - Cinephage, qBittorrent, Prowlarr (VPN-routed). MediaManager is
+  parked behind the `mediamanager` compose profile and no longer starts by default.
 - `/dashboards` - Homepage, Homarr
 - `/sftpgo` - SFTPGo file transfer server
 - `/boxbox` - Web file manager

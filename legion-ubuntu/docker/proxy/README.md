@@ -6,7 +6,7 @@ Reverse proxy with SSL certificates and centralized authentication.
 
 ```bash
 # From parent directory
-make netup
+just netup
 
 # Deploy
 docker compose up -d

@@ -4,6 +4,13 @@ It is a set of docker containers that uses the VPN connection to route traffic f
 
 ## Media Manager with Prowlarr, qBittorrent, and a nordvpn wireguard connection
 
+> **MediaManager is parked.** It and its Postgres sit behind the `mediamanager`
+> compose profile, so the plain `docker compose up -d` used below **skips both**.
+> Every command in this section needs `--profile mediamanager` to start it, e.g.
+> `docker compose --profile mediamanager up -d`. See the comment above the service
+> in `compose.yml` for why. Cinephage (below) is the intended replacement — if you
+> are setting this stack up fresh, use that section instead.
+
 We are following the guide from https://maximilian-dorninger.gitbook.io/mediamanager/installation-guide to set up MediaManager.
 
 ### Step one
@@ -66,7 +73,8 @@ Here is what I changed in my config.toml:
 Now that you have your config.toml file ready, and env variables setup, you can start the containers.
 
 ```bash
-docker compose up -d
+# --profile mediamanager is required; a plain `up -d` skips MediaManager and its db.
+docker compose --profile mediamanager up -d
 ```
 
 Go to `http://localhost:13000` to access the MediaManager web UI.
@@ -74,7 +82,8 @@ Go to `http://localhost:13000` to access the MediaManager web UI.
 ## Traefik Access
 
 After deploying the proxy stack, services are accessible via:
-- MediaManager: `https://mediamanager.${DOMAIN}` (Pocket ID auth)
+- MediaManager: `https://mediamanager.${DOMAIN}` (Pocket ID auth) — parked, only
+  reachable when started with `--profile mediamanager`
 - Cinephage: `https://cine.${DOMAIN}` (own login)
 - qBittorrent: `https://qbit.${DOMAIN}` (Pocket ID auth)
 - Prowlarr: `https://prowlarr.${DOMAIN}` (Pocket ID auth)

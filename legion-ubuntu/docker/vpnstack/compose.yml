@@ -106,7 +106,17 @@ services:
     restart: unless-stopped
 
 # Mediamanager stack
+#
+# PARKED: gated behind the `mediamanager` profile, so a plain `docker compose up -d`
+# skips it and the `db` below. Re-enable with:
+#     docker compose --profile mediamanager up -d
+#
+# It lost its Postgres connection and its taskiq broker retried listen() with no
+# backoff, filling the root disk with 567 GB of tracebacks. Not fixable here: the
+# loop is in taskiq (https://github.com/taskiq-python/taskiq/issues/480) and
+# MediaManager has no retry/backoff setting. Cinephage below replaces it.
   mediamanager:
+    profiles: ["mediamanager"]
     container_name: mediamanager_server
     image: ghcr.io/tagpro/mediamanager/mediamanager:v0.1.0
     ports:
@@ -203,7 +213,10 @@ services:
       - ${CINEPHAGE_BACKUP_PATH}:/backups
       - ./cinephage-litestream.yml:/etc/litestream.yml:ro
 
+  # Only serves mediamanager above, so it is parked with it. The
+  # mediamanager_postgres volume is kept so no data is lost.
   db:
+    profiles: ["mediamanager"]
     container_name: mediamanager_postgres
     image: postgres:17
     restart: unless-stopped
