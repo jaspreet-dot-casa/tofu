@@ -61,11 +61,13 @@ lost its Postgres connection, its taskiq broker retried with no backoff, and the
 resulting traceback spam grew a single log file to 567 GB. Nothing truncates a
 `json-file` log by default, so a crash-looping container will consume the disk.
 
-The recipe **merges** into any existing `/etc/docker/daemon.json` (backing it up
-first) rather than overwriting it — this host registers the NVIDIA container runtime
-there, and Jellyfin and Ollama stop seeing the GPU if that key is lost. It validates
-with `dockerd --validate` but does not restart Docker; apply with
-`sudo systemctl restart docker` when a full container restart is acceptable.
+The recipe **merges** into any existing `/etc/docker/daemon.json` rather than
+overwriting it — this host registers the NVIDIA container runtime there, and Jellyfin
+and Ollama stop seeing the GPU if that key is lost. The merged result is validated with
+`dockerd --validate` while still a temp file, and only installed (after a timestamped
+backup) if it passes, since an invalid daemon.json stops dockerd starting at all. It
+does not restart Docker; apply with `sudo systemctl restart docker` when a full
+container restart is acceptable.
 
 Caps apply to **newly created** containers, so existing ones pick this up when next
 recreated. An already-oversized log file has to be deleted by hand.

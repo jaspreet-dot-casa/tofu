@@ -145,9 +145,10 @@ just compose-down   # Stop all services
 
 Capped at the **daemon** level, not per service: `daemon.json` sets `json-file` to
 `max-size: 50m` / `max-file: 3` for every container on the host. Install with
-`just docker-logging-setup`, which merges into the existing `/etc/docker/daemon.json`
-(preserving `runtimes.nvidia`, which Jellyfin and Ollama need) and validates with
-`dockerd --validate` before writing.
+`just docker-logging-setup`. It merges into the existing `/etc/docker/daemon.json`
+(preserving `runtimes.nvidia`, which Jellyfin and Ollama need), validates the merged
+result with `dockerd --validate` while it is still a temp file, and only then backs up
+and installs it — an invalid daemon.json stops dockerd starting at all.
 
 Deliberately NOT done per service in `compose.yml` — the daemon default covers every
 container automatically, including new services nobody remembered to annotate.

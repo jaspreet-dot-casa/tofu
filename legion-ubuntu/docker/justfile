@@ -23,17 +23,24 @@ docker-logging-setup:
     #!/usr/bin/env bash
     set -euo pipefail
     command -v jq >/dev/null || { echo "jq is required: sudo apt install jq"; exit 1; }
+    merged="$(mktemp)"
+    trap 'rm -f "$merged"' EXIT
+    if [ -f /etc/docker/daemon.json ]; then
+        # Merge, don't overwrite: this host registers runtimes.nvidia here and
+        # Jellyfin/Ollama lose the GPU if that key is dropped.
+        jq -s '.[0] * .[1]' /etc/docker/daemon.json daemon.json > "$merged"
+    else
+        cp daemon.json "$merged"
+    fi
+    # Validate BEFORE touching /etc: an invalid daemon.json stops dockerd starting
+    # at all, so a bad merge must never reach the real path.
+    sudo dockerd --validate --config-file "$merged"
     if [ -f /etc/docker/daemon.json ]; then
         backup="/etc/docker/daemon.json.bak.$(date +%Y%m%d%H%M%S)"
         sudo cp /etc/docker/daemon.json "$backup"
         echo "Backed up existing config to $backup"
-        jq -s '.[0] * .[1]' /etc/docker/daemon.json daemon.json > /tmp/daemon.json.merged
-        sudo install -m 0644 /tmp/daemon.json.merged /etc/docker/daemon.json
-        rm -f /tmp/daemon.json.merged
-    else
-        sudo install -m 0644 -D daemon.json /etc/docker/daemon.json
     fi
-    sudo dockerd --validate --config-file /etc/docker/daemon.json
+    sudo install -m 0644 -D "$merged" /etc/docker/daemon.json
     echo ""
     echo "Config written and validated. It is NOT live yet."
     echo "Apply with: sudo systemctl restart docker   (this restarts every container)"
