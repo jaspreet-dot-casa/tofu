@@ -18,6 +18,28 @@ ufw-setup:
     sudo ufw allow 53317/tcp comment 'LocalSend'
     @echo "UFW rules configured. Enable with: sudo ufw enable"
 
+# Merge the container log-size caps into /etc/docker/daemon.json
+docker-logging-setup:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    command -v jq >/dev/null || { echo "jq is required: sudo apt install jq"; exit 1; }
+    if [ -f /etc/docker/daemon.json ]; then
+        backup="/etc/docker/daemon.json.bak.$(date +%Y%m%d%H%M%S)"
+        sudo cp /etc/docker/daemon.json "$backup"
+        echo "Backed up existing config to $backup"
+        jq -s '.[0] * .[1]' /etc/docker/daemon.json daemon.json > /tmp/daemon.json.merged
+        sudo install -m 0644 /tmp/daemon.json.merged /etc/docker/daemon.json
+        rm -f /tmp/daemon.json.merged
+    else
+        sudo install -m 0644 -D daemon.json /etc/docker/daemon.json
+    fi
+    sudo dockerd --validate --config-file /etc/docker/daemon.json
+    echo ""
+    echo "Config written and validated. It is NOT live yet."
+    echo "Apply with: sudo systemctl restart docker   (this restarts every container)"
+    echo "Note: log caps apply to newly created containers only. Existing containers"
+    echo "keep their current settings until recreated via 'just compose-up'."
+
 # Create Docker networks if they don't exist
 netup:
     docker network inspect proxy >/dev/null 2>&1 || docker network create proxy

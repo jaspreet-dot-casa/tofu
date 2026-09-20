@@ -2,7 +2,7 @@
 
 1. Ensure networks exist:
 ```bash
-make netup
+just netup
 ```
 
 2. Configure environment (if not already done):

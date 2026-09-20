@@ -19,7 +19,7 @@ Homelab Docker stack running on an Ubuntu server (legion-ubuntu). All services s
 | `proxy/`     | `traefik.glorzo.jaspreet.casa`         | tinyauth          | Traefik dashboard, TinyAuth, Pocket ID |
 | `proxy/`     | `auth.glorzo.jaspreet.casa`            | none (public)     | Pocket ID OIDC provider |
 | `proxy/`     | `tinyauth.glorzo.jaspreet.casa`        | none (self)       | TinyAuth UI |
-| `vpnstack/`  | `mediamanager.glorzo.jaspreet.casa`    | tinyauth          | Media manager (VPN-routed) |
+| `vpnstack/`  | `mediamanager.glorzo.jaspreet.casa`    | tinyauth          | Media manager (VPN-routed). **Parked** behind the `mediamanager` compose profile — excluded from a default `up`; re-enable with `docker compose --profile mediamanager up -d` |
 | `vpnstack/`  | `cine.glorzo.jaspreet.casa`            | built-in          | Media manager; intended MediaManager replacement. Shares gluetun's netns (all traffic VPN-only), so its port + Traefik router live on the gluetun service. SQLite + Litestream |
 | `vpnstack/`  | `qbit.glorzo.jaspreet.casa`            | tinyauth          | qBittorrent (VPN-routed) |
 | `vpnstack/`  | `prowlarr.glorzo.jaspreet.casa`        | tinyauth          | Indexer manager (VPN-routed) |
@@ -42,7 +42,7 @@ Homelab Docker stack running on an Ubuntu server (legion-ubuntu). All services s
 
 ## Docker Networks
 
-Three external networks created via `make netup` / `just netup`:
+Three external networks created via `just netup`:
 
 | Network     | Purpose |
 |-------------|---------|
@@ -124,27 +124,42 @@ networks:
 3. Create `.env` (copy from `.env.example`, fill in secrets)
 4. Create `.env.example` with placeholder values
 5. Create `.gitignore` containing `.env`
-6. Add to both `Makefile` and `justfile` `compose-up` / `compose-down` targets
+6. Add to the `justfile` `compose-up` / `compose-down` recipes
 
 ---
 
 ## Management
 
-```bash
-make netup          # Create Docker networks
-make compose-up     # Start all services
-make compose-down   # Stop all services
+Task runner is `just` (there is no Makefile).
 
-just netup          # Same, using justfile
-just compose-up
-just compose-down
+```bash
+just                # List all recipes
+just netup          # Create Docker networks
+just compose-up     # Start all services
+just compose-down   # Stop all services
 ```
+
+---
+
+## Container Logging
+
+Capped at the **daemon** level, not per service: `daemon.json` sets `json-file` to
+`max-size: 50m` / `max-file: 3` for every container on the host. Install with
+`just docker-logging-setup`, which merges into the existing `/etc/docker/daemon.json`
+(preserving `runtimes.nvidia`, which Jellyfin and Ollama need) and validates with
+`dockerd --validate` before writing.
+
+Deliberately NOT done per service in `compose.yml` — the daemon default covers every
+container automatically, including new services nobody remembered to annotate.
+
+Background: an uncapped log file reached 567 GB and filled the root disk when
+`mediamanager_server` crash-looped against a lost Postgres connection.
 
 ---
 
 ## Host Firewall (UFW)
 
-Open ports managed via `make ufw-setup`:
+Open ports managed via `just ufw-setup`:
 - 22/tcp — SSH
 - 80/tcp — Traefik HTTP
 - 443/tcp — Traefik HTTPS
