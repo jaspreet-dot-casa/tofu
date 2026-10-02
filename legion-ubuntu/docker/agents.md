@@ -36,6 +36,7 @@ Homelab Docker stack running on an Ubuntu server (legion-ubuntu). All services s
 | `arcane/`    | `arcane.glorzo.jaspreet.casa`          | built-in          | Docker management UI |
 | `boxbox/`    | `boxbox.glorzo.jaspreet.casa`          | tinyauth          | Web file manager |
 | `webhost/`   | `web.glorzo.jaspreet.casa`             | none (public)     | Static site hosting; Caddy serves a host dir (`SITE_PATH`), directory browsing on |
+| `rustdesk/`  | `rustdesk.glorzo.jaspreet.casa` (DNS only, no Traefik) | key pair | RustDesk ID + relay server (hbbs/hbbr). Raw TCP/UDP 21115–21117 published on all interfaces, bridge networking (not host mode). Tailscale primary, LAN IP fallback. See `rustdesk/README.md` |
 | `claude/cca/`| `cca.glorzo.jaspreet.casa`             | none (anon cookie)| Claude Certified Architect exam prep. **Built from source** in `claude/cca/app/` (SvelteKit, adapter-node). No login by design — progress keys off a signed anonymous cookie that doubles as a cross-device sync code. SQLite via `node:sqlite` + Litestream |
 
 ---
@@ -169,3 +170,4 @@ Open ports managed via `just ufw-setup`:
 - 1900/udp, 7359/udp — Jellyfin discovery
 - 32400/tcp — Plex
 - 53317/tcp — LocalSend
+- 21115–21117/tcp, 21116/udp — RustDesk server

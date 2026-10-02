@@ -1,0 +1,49 @@
+services:
+  # ID / rendezvous server. hbbs enforces the key by default (KEY=-), so only
+  # clients configured with data/id_ed25519.pub can register.
+  hbbs:
+    image: rustdesk/rustdesk-server:1.1.16
+    container_name: rustdesk-hbbs
+    restart: unless-stopped
+    command: hbbs
+    volumes:
+      - ./data:/root
+      # Scratch image has no zoneinfo, so TZ is ignored; this gives local log times.
+      - /etc/localtime:/etc/localtime:ro
+    # Bridge networking, not the upstream-recommended host mode. Docker's
+    # iptables DNAT keeps the real client source IP, which is all host mode
+    # buys hbbs for hole punching. Published on every interface on purpose:
+    # binding the Tailscale IP would fail at boot whenever tailscaled is slow or
+    # down, taking the LAN fallback down with it. Internet exposure is therefore
+    # down to the router: never port-forward 21115-21117.
+    #
+    # 21118 (web-client WebSocket) is left unpublished: not needed by desktop or
+    # mobile clients, and the host's own RustDesk client uses 21118 for
+    # direct IP access.
+    ports:
+      - "21115:21115"      # NAT type test
+      - "21116:21116"      # TCP hole punching / connection
+      - "21116:21116/udp"  # ID registration + heartbeat
+    security_opt:
+      - no-new-privileges:true
+
+  # Relay. RELAY-SERVERS is deliberately unset on hbbs, so each client relays via
+  # whatever host it used for the ID server (port 21117). That is what lets the
+  # Tailscale and LAN paths share one server with no per-path config.
+  hbbr:
+    image: rustdesk/rustdesk-server:1.1.16
+    container_name: rustdesk-hbbr
+    restart: unless-stopped
+    # hbbr skips key validation by default; `-k _` loads the same key pair as hbbs.
+    command: hbbr -k _
+    volumes:
+      - ./data:/root
+      - /etc/localtime:/etc/localtime:ro
+    ports:
+      - "21117:21117"      # relay
+    security_opt:
+      - no-new-privileges:true
+    # hbbs generates the key pair on first start; starting it first stops the two
+    # racing to write different keys into the shared data dir.
+    depends_on:
+      - hbbs
