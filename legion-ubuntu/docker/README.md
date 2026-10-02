@@ -84,6 +84,7 @@ See individual directories for detailed setup:
 - `/ollama` - Ollama LLM API (NVIDIA hardware acceleration)
 - `/openwebui` - Open WebUI chat interface for Ollama
 - `/plex` - Plex media server
+- `/rustdesk` - RustDesk ID + relay server (Tailscale / LAN only, no Traefik)
 
 Notes:
 - The Base URL is set in .env.global file as `DOMAIN`.

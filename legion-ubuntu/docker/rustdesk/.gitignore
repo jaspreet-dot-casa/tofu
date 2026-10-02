@@ -1,0 +1,3 @@
+.env
+# Key pair (id_ed25519 is the private key) + peer DB
+data/
