@@ -90,6 +90,33 @@ After deploying the proxy stack, services are accessible via:
 
 Direct port access (`localhost:13000`, etc.) remains available as fallback.
 
+## Restarting and updating
+
+qBittorrent, Prowlarr and Cinephage run with `network_mode: service:gluetun`: they
+join gluetun's network namespace by container ID when they start, and never again.
+Restart or recreate gluetun behind their backs and they are stranded in the dead
+namespace — no network at all (it fails closed, nothing leaks), and once the old
+gluetun container is removed they cannot even start:
+
+```
+joining network namespace of container: No such container: <old gluetun id>   (exit 128)
+```
+
+So always act on the **whole stack**, through compose:
+
+- Update / apply changes: `docker compose up -d`, or the project **Redeploy** in Arcane.
+- Restart the VPN: `docker compose restart gluetun`. Each dependent has
+  `restart: true` on its gluetun dependency, so compose restarts them after it.
+
+Never `docker restart gluetun`, and never update the gluetun container on its own in
+Arcane. If something did, the dependents' healthchecks probe gluetun's control server
+on `127.0.0.1:8000` (only reachable from inside a live gluetun namespace), so they
+show **unhealthy**. Fix with:
+
+```bash
+docker compose up -d --force-recreate qbittorrent prowlarr cinephage
+```
+
 ## Cinephage
 
 Intended replacement for MediaManager. It rolls the Radarr/Sonarr/Prowlarr/Bazarr

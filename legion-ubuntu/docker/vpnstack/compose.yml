@@ -15,10 +15,31 @@ services:
       - qbittorrent:/config
       - ${MEDIA_PATH}/qbittorrent/downloads:/downloads # This is where your torrents will be saved
     restart: unless-stopped
+    # Port 8000 probes the gluetun namespace (see the note above gluetun); 13001 is
+    # the WebUI. Any HTTP status counts, so no -f: a refused connection is the failure.
+    healthcheck:
+      test: ["CMD-SHELL", "curl -so /dev/null http://127.0.0.1:8000/ && curl -so /dev/null http://127.0.0.1:13001/"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 1m
+      start_interval: 2s
     depends_on:
       gluetun:
         condition: service_healthy
+        restart: true
 
+  # Every `network_mode: service:gluetun` container joins gluetun's network namespace
+  # by container ID, once, when it starts. If gluetun restarts or is recreated (image
+  # update, config change) without them, they are stranded in the old namespace with
+  # no network, and once the old gluetun is removed they cannot start at all
+  # ("joining network namespace of container: No such container", exit 128). So each
+  # of them has:
+  #   - `restart: true` on its gluetun dependency, so compose restarts it whenever
+  #     compose restarts or recreates gluetun;
+  #   - a healthcheck on 127.0.0.1:8000, gluetun's control server, which only answers
+  #     from inside a live gluetun namespace, so a stranded container shows unhealthy.
+  # Restart/redeploy this stack as a whole, never gluetun alone — see the README.
   gluetun:
     container_name: gluetun
     image: qmcgaw/gluetun
@@ -100,9 +121,19 @@ services:
     volumes:
       - prowlarr_data:/config # Host path for configuration data:container path
     network_mode: "service:gluetun"
+    # /ping is Prowlarr's unauthenticated liveness endpoint; 8000 probes the gluetun
+    # namespace, as on qbittorrent.
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fso /dev/null http://127.0.0.1:9696/ping && curl -so /dev/null http://127.0.0.1:8000/"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 1m
+      start_interval: 2s
     depends_on:
       gluetun:
         condition: service_healthy
+        restart: true
     restart: unless-stopped
 
 # Mediamanager stack
@@ -160,7 +191,10 @@ services:
 # so it needs neither prowlarr nor a database container (SQLite, see litestream below).
   cinephage:
     container_name: cinephage
-    image: ghcr.io/moldytaint/cinephage:latest
+    # Pinned: upstream deleted the `latest` tag, so every pull of it now fails. Bump
+    # deliberately; versions are on https://github.com/MoldyTaint/Cinephage/releases
+    # (the image tags drop the leading "v": release v0.17.0 is tag 0.17.0).
+    image: ghcr.io/moldytaint/cinephage:0.17.0
     # Routed entirely through gluetun, so it has no direct internet path: its indexer
     # searches and TMDB calls exit over the VPN, and it dies with the tunnel.
     # Consequences of sharing the namespace: no `networks`, no `ports` and no Traefik
@@ -190,9 +224,20 @@ services:
       # so the torrent paths qBittorrent reports resolve as-is and no remote path
       # mapping is needed.
       - ${MEDIA_PATH}/qbittorrent/downloads:/downloads
+    # Replaces the image's own healthcheck (just /api/health), adding the gluetun
+    # namespace probe on 8000 that the other gluetun-attached services use. A refused
+    # connection rejects the fetch; any HTTP status from 8000 is fine.
+    healthcheck:
+      test: ["CMD", "node", "-e", "const o={signal:AbortSignal.timeout(9000)};Promise.all([fetch('http://127.0.0.1:3000/api/health',o),fetch('http://127.0.0.1:8000/',o)]).then(([r])=>process.exit(r.ok?0:1),()=>process.exit(1))"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10m
+      start_interval: 5s
     depends_on:
       gluetun:
         condition: service_healthy
+        restart: true
       qbittorrent:
         condition: service_started
     restart: unless-stopped
