@@ -191,10 +191,7 @@ services:
 # so it needs neither prowlarr nor a database container (SQLite, see litestream below).
   cinephage:
     container_name: cinephage
-    # Pinned: upstream deleted the `latest` tag, so every pull of it now fails. Bump
-    # deliberately; versions are on https://github.com/MoldyTaint/Cinephage/releases
-    # (the image tags drop the leading "v": release v0.17.0 is tag 0.17.0).
-    image: ghcr.io/moldytaint/cinephage:0.17.0
+    image: ghcr.io/cinephage/cinephage:latest
     # Routed entirely through gluetun, so it has no direct internet path: its indexer
     # searches and TMDB calls exit over the VPN, and it dies with the tunnel.
     # Consequences of sharing the namespace: no `networks`, no `ports` and no Traefik
