@@ -1,19 +1,33 @@
 services:
   arcane:
-    image: ghcr.io/getarcaneapp/arcane:latest
+    # Pinned to the v3 major: crossing a major version needs a migration (see README).
+    image: ghcr.io/getarcaneapp/manager:v3
     container_name: arcane
     ports:
       - '3552:3552'
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - arcane-data:/app/data
-      - ${PROJECTS_DIRECTORY}:${PROJECTS_DIRECTORY}
+      # Same absolute path inside and out, so relative bind mounts in managed
+      # projects resolve identically for Arcane and the Docker daemon.
+      - ${ARCANE_PROJECTS_DIRECTORY:?set ARCANE_PROJECTS_DIRECTORY in .env}:${ARCANE_PROJECTS_DIRECTORY}
+    # Every Arcane variable must carry the ARCANE_ prefix: v3 refuses to start
+    # if .env still holds a pre-v3 name (APP_URL, ENCRYPTION_KEY, OIDC_*, ...).
     env_file:
       - .env
     environment:
-      - APP_URL=https://arcane.${DOMAIN}
+      - ARCANE_APP_URL=https://arcane.${DOMAIN}
+      - TZ=Australia/Melbourne
       - PUID=1000
       - PGID=1000
+    # Host cgroup namespace, read by Arcane's system stats.
+    cgroup: host
+    healthcheck:
+      test: ["CMD", "./arcane", "health", "--timeout", "2s"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+      start_period: 15s # covers database migrations on first boot
     networks:
       - proxy
     restart: unless-stopped
